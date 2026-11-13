@@ -1,0 +1,43 @@
+<div class="user-container">
+  <h2>Mis Boletos apartados</h2>
+  <p class="subtitle">Selecciona un boleto y ve tu codigo de acceso</p>
+
+  <!-- Lista boletos -->
+  <div class="boletos-grid" *ngIf="!boletoSeleccionado">
+    <div class="boleto-card" *ngFor="let bol of misBoletos" (click)="verDetalleBoleto(bol)">
+      <div class="boleto-info">
+        <h3>{{ bol.titulo }}</h3>
+        <p> {{ bol.cafeteria }}</p>
+        <p> {{ bol.fecha }} a las {{ bol.hora }} hrs</p>
+        <span class="badge-estado">{{ bol.estado }}</span>
+      </div>
+      <div class="ver-boleto-btn">Ver Boleto &rarr;</div>
+    </div>
+
+    <div class="empty-state" *ngIf="misBoletos.length === 0">
+      <p>No tienes boletos o lugares apartados </p>
+    </div>
+  </div>
+
+  <!-- Detalle boleto -->
+  <div class="ticket-detail-card" *ngIf="boletoSeleccionado">
+    <button type="button" class="btn-back" (click)="cerrarDetalle()">&larr; Regresar a mis boletos</button>
+    
+    <div class="ticket-header">
+      <h2>{{ boletoSeleccionado.titulo }}</h2>
+      <p class="cafe-name">{{ boletoSeleccionado.cafeteria }}</p>
+    </div>
+
+    <div class="ticket-body">
+      <p><strong>Fecha:</strong> {{ boletoSeleccionado.fecha }}</p>
+      <p><strong>Hora:</strong> {{ boletoSeleccionado.hora }} hrs</p>
+      <p><strong>Estado:</strong> {{ boletoSeleccionado.estado }}</p>
+
+      <div class="codigo-box">
+        <p class="codigo-label">Tu codigo de acceso:</p>
+        <div class="codigo-valor">{{ boletoSeleccionado.codigo }}</div>
+        <p class="codigo-instruccion">Presenta este código en la entrada de la cafetería.</p>
+      </div>
+    </div>
+  </div>
+</div>

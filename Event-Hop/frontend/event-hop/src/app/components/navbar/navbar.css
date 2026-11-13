@@ -1,0 +1,223 @@
+/* BARRA SUPERIOR */
+.barra-superior {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: var(--color2); /* Rosa principal */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.izquierda-top {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.boton-hamburguesa {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 5px;
+}
+
+.boton-hamburguesa span {
+  display: block;
+  width: 24px;
+  height: 3px;
+  background-color: white;
+  border-radius: 2px;
+}
+
+.logo-marca {
+  color: white;
+  font-size: 22px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.derecha-top {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-top-secundario {
+  background-color: transparent;
+  color: white;
+  border: 1px solid white;
+  padding: 7px 14px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-top-principal {
+  background-color: var(--color3A); /* Durazno */
+  color: #333333;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+
+.menu-lateral {
+  position: fixed;
+  top: 60px; 
+  left: 0;
+  bottom: 0;
+  width: 260px;
+  background-color: white;
+  border-right: 2px solid var(--color4T);
+  padding: 20px 15px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+  z-index: 900;
+  overflow-y: auto;
+}
+
+/* Cuando se cierra, se desliza hacia la izquierda */
+.menu-lateral.cerrado {
+  transform: translateX(-100%);
+}
+
+/* PERFIL ARRIBA DEL MENU */
+.perfil-usuario {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background-color: var(--colorfondo);
+  border-radius: 8px;
+}
+
+.foto-perfil {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: var(--color5Az); /* Azul */
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.datos-perfil {
+  overflow: hidden;
+}
+
+.nombre-perfil {
+  margin: 0;
+  font-weight: bold;
+  font-size: 15px;
+  color: #222222;
+}
+
+.rol-etiqueta {
+  font-size: 12px;
+  color: var(--color2);
+  font-weight: bold;
+}
+
+.perfil-invitado {
+  padding: 10px;
+  background-color: var(--colorfondo);
+  border-radius: 8px;
+}
+
+.perfil-invitado p {
+  margin: 0 0 4px 0;
+  font-weight: bold;
+  color: #333333;
+}
+
+.perfil-invitado span {
+  font-size: 12px;
+  color: #666666;
+}
+
+.divisor-menu {
+  border: none;
+  border-top: 1px solid #eeeeee;
+  margin: 15px 0;
+}
+
+
+.lista-secciones {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.item-menu {
+  text-decoration: none;
+  color: #333333;
+  padding: 12px 15px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.item-menu:hover {
+  background-color: var(--colorfondo);
+}
+
+.item-menu.activo {
+  background-color: var(--color3A);
+  font-weight: bold;
+  color: #222222;
+}
+
+
+.caja-pruebas {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 6px;
+  border: 1px dashed #cccccc;
+}
+
+.caja-pruebas p {
+  margin: 0 0 8px 0;
+  font-size: 11px;
+  color: #666666;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.botones-rol {
+  display: flex;
+  gap: 5px;
+}
+
+.botones-rol button {
+  flex: 1;
+  padding: 5px;
+  font-size: 11px;
+  border: 1px solid #cccccc;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.botones-rol button.activo {
+  background-color: var(--color5Az);
+  color: white;
+  border-color: var(--color5Az);
+  font-weight: bold;
+}

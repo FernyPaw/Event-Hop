@@ -1,0 +1,84 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>Crear Cuenta</h2>
+    <p class="subtitle">Únete a Event-Hop</p>
+
+    // Rol 
+    <div class="role-selector">
+      <button 
+        type="button" 
+        [class.active]="rol === 'usuario'" 
+        (click)="rol = 'usuario'">
+        Usuario
+      </button>
+      <button 
+        type="button" 
+        [class.active]="rol === 'cafeteria'" 
+        (click)="rol = 'cafeteria'">
+        Cafeteria
+      </button>
+    </div>
+
+    <form (ngSubmit)="registrar()">
+      <div class="form-group">
+        <label for="nombre">
+          {{ rol === 'cafeteria' ? 'Nombre de la Cafeteria' : 'Nombre completo' }}
+        </label>
+        <input 
+          type="text" 
+          id="nombre" 
+          name="nombre" 
+          [(ngModel)]="nombre" 
+          [placeholder]="rol === 'cafeteria' ? 'Ej. Cafe El Conejito' : 'Ej. Maria González'" 
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="correo">Correo</label>
+        <input 
+          type="email" 
+          id="correo" 
+          name="correo" 
+          [(ngModel)]="correo" 
+          placeholder="ejemplo@correo.com" 
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          [(ngModel)]="password" 
+          placeholder="Crea una contraseña" 
+          required>
+      </div>
+
+      <!-- Campo exclusivo para Cafeterías -->
+      <div class="form-group" *ngIf="rol === 'cafeteria'">
+        <label for="rfc">RFC</label>
+        <input 
+          type="text" 
+          id="rfc" 
+          name="rfc" 
+          [(ngModel)]="rfc" 
+          placeholder="Ej. HONR981224XYZ" 
+          maxlength="13"
+          style="text-transform: uppercase;"
+          required>
+        <small class="help-text">
+          * Tu cuenta permanecer inactiva hasta que un administrador verifique tu solicitud.
+        </small>
+      </div>
+
+      <button type="submit" class="btn-primary">
+        {{ rol === 'cafeteria' ? 'Enviar Solicitud' : 'Registrarme' }}
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      ¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a>
+    </p>
+  </div>
+</div>

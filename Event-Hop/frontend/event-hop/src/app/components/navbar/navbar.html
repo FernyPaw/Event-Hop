@@ -1,0 +1,82 @@
+
+<header class="barra-superior">
+  <div class="izquierda-top">
+    
+    <button type="button" class="boton-hamburguesa" (click)="alternarMenu()" title="Abrir o cerrar menú">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <a href="#" class="logo-marca">Event-Hop!</a>
+  </div>
+
+  <div class="derecha-top">
+
+    <ng-container *ngIf="!estaLogueado">
+      <button type="button" class="btn-top-secundario" (click)="iniciarSesionDemo()">Iniciar sesión</button>
+
+    </ng-container>
+
+    <ng-container *ngIf="estaLogueado">
+      <button type="button" class="btn-top-secundario" (click)="cerrarSesion()">Cerrar sesión</button>
+    </ng-container>
+  </div>
+</header>
+
+
+<aside class="menu-lateral" [class.cerrado]="!menuAbierto">
+  
+
+  <div class="perfil-usuario" *ngIf="estaLogueado">
+    <div class="foto-perfil">{{ perfil.iniciales }}</div>
+    <div class="datos-perfil">
+      <p class="nombre-perfil">{{ perfil.nombre }}</p>
+      <span class="rol-etiqueta">{{ perfil.subtitulo }}</span>
+    </div>
+  </div>
+
+  <div class="perfil-invitado" *ngIf="!estaLogueado">
+    <p>Modo Invitado</p>
+    <span>Inicia sesión para ver más opciones</span>
+  </div>
+
+  <hr class="divisor-menu">
+
+
+  <nav class="lista-secciones">
+    
+  <!-- Usuario -->
+    <ng-container *ngIf="rolActual === 'usuario' || !estaLogueado">
+      <a routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{exact: true}" class="item-menu">Inicio</a>
+      <a routerLink="/usuario/mis-eventos" routerLinkActive="activo" class="item-menu" *ngIf="estaLogueado">Mis eventos</a>
+      <a routerLink="/usuario/mis-boletos" routerLinkActive="activo" class="item-menu" *ngIf="estaLogueado">Mis boletos</a>
+      <a routerLink="/usuario/perfil" routerLinkActive="activo" class="item-menu" *ngIf="estaLogueado">Perfil</a>
+    </ng-container>
+
+  <!--Cafe -->
+    <ng-container *ngIf="estaLogueado && rolActual === 'cafeteria'">
+      <a routerLink="/cafeteria" routerLinkActive="activo" class="item-menu">Gestión</a>
+      <a routerLink="/cafeteria/checkin" routerLinkActive="activo" class="item-menu">Registro de eventos</a>
+      <a routerLink="/cafeteria/perfil" routerLinkActive="activo" class="item-menu">Perfil</a>
+    </ng-container>
+
+  <!-- Admin-->
+    <ng-container *ngIf="estaLogueado && rolActual === 'admin'">
+      <a routerLink="/admin" routerLinkActive="activo" [routerLinkActiveOptions]="{exact: true}" class="item-menu">Gestión</a>
+      <a routerLink="/admin/cafeterias" routerLinkActive="activo" class="item-menu">Cafeterías</a>
+      <a routerLink="/admin/perfil" routerLinkActive="activo" class="item-menu">Perfil</a>
+    </ng-container>
+
+  </nav>
+
+  <!-- PRUEBA  -->
+  <div class="caja-pruebas">
+    <p>Vista previa de rol:</p>
+    <div class="botones-rol">
+      <button type="button" [class.activo]="rolActual === 'usuario'" (click)="cambiarRol('usuario')">Usuario</button>
+      <button type="button" [class.activo]="rolActual === 'cafeteria'" (click)="cambiarRol('cafeteria')">Cafetería</button>
+      <button type="button" [class.activo]="rolActual === 'admin'" (click)="cambiarRol('admin')">Admin</button>
+    </div>
+  </div>
+
+</aside>

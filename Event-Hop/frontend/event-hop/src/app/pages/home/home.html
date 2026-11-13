@@ -1,0 +1,114 @@
+<div class="contenedor-principal">
+  
+  <header class="banner-bnvnd">
+    <h1>Encuentra tu proxima gran expecriencia en cafeterías locales</h1>
+    <p>Explora talleres, música acústica, clubes de lectura y mas en un solo lugar.</p>
+  </header>
+
+
+  <section class="evento" *ngIf="!eventoSeleccionado">
+    <h2>Próximos Eventos</h2>
+
+  
+    <div class="barra-filtros">
+     <div class="grupo-filtro">
+        <label for="filtroCafeteria">Cafetería:</label>
+        <select id="filtroCafeteria" [(ngModel)]="filtroCafeteria">
+          <option value="">Todas las cafeterías</option>
+          <!-- Se generan de forma dinamica -->
+          <option *ngFor="let cafeteria of listaCafeterias" [value]="cafeteria">
+            {{ cafeteria }}
+          </option>
+        </select>
+      </div>
+
+      <div class="grupo-filtro">
+        <label for="filtroDia">Dia:</label>
+        <select id="filtroDia" [(ngModel)]="filtroDia">
+          <option value="">Todos los dias</option>
+          <option value="Sábado">Sabado</option>
+          <option value="Domingo">Domingo</option>
+          <option value="Martes">Martes</option>
+        </select>
+      </div>
+
+      <div class="grupo-filtro">
+        <label for="filtroTipo">Tipo:</label>
+        <select id="filtroTipo" [(ngModel)]="filtroTipo">
+          <option value="">Todos</option>
+          <option value="gratis">Gratis</option>
+          <option value="paga">De paga</option>
+        </select>
+      </div>
+    </div>
+
+   
+    <div class="grid-eventos">
+      
+      <article class="evento" *ngFor="let evento of eventosFiltrados">
+        <div>
+          <div class="cabecera-tarjeta">
+            <span class="etiqueta-categoria">{{ evento.categoria }}</span>
+            <span class="etiqueta-precio">{{ evento.esGratis ? 'Gratis' : evento.precio }}</span>
+          </div>
+          <h3>{{ evento.titulo }}</h3>
+          <p class="lugar">{{ evento.cafeteria }}</p>
+          <p class="fecha">{{ evento.fechaTexto }}</p>
+        </div>
+
+        <button type="button" class="boton-ver" (click)="verDetalle(evento)">
+          Ver detalles
+        </button>
+      </article>
+
+    </div>
+
+   
+    <p class="sin-resultados" *ngIf="eventosFiltrados.length === 0">
+      No se encontraron eventos
+    </p>
+  </section>
+
+ 
+  <section class="vista-detalle" *ngIf="eventoSeleccionado">
+    <button type="button" class="boton-volver" (click)="cerrarDetalle()">
+      Volver a todos los eventos
+    </button>
+
+    <div class="tarjeta-detalle-completa">
+      <div class="cabecera-detalle">
+        <span class="etiqueta-categoria">{{ eventoSeleccionado.categoria }}</span>
+        <span class="etiqueta-precio">{{ eventoSeleccionado.precio }}</span>
+      </div>
+
+      <h2>{{ eventoSeleccionado.titulo }}</h2>
+      
+      <div class="info-detalle">
+        <p><strong>Cafeteria:</strong> {{ eventoSeleccionado.cafeteria }}</p>
+        <p><strong>Dirección:</strong> {{ eventoSeleccionado.direccion }}</p>
+        <p><strong>Fecha y hora:</strong> {{ eventoSeleccionado.fechaTexto }}</p>
+        <p><strong>Modalidad:</strong> {{ eventoSeleccionado.esGratis ? 'Entrada gratuita' : 'Evento de paga (' + eventoSeleccionado.precio + ')' }}</p>
+      </div>
+
+      <div class="descripcion-detalle">
+        <h3>Acerca de este evento</h3>
+        <p>{{ eventoSeleccionado.descripcion }}</p>
+      </div>
+
+      <div class="acciones-detalle">
+        <button type="button" class="boton-comprar">
+          {{ eventoSeleccionado.esGratis ? 'Reservar lugar gratis' : 'Comprar boleto' }}
+        </button>
+
+        <button 
+          type="button" 
+          class="boton-guardar" 
+          [class.guardado]="eventoSeleccionado.guardado"
+          (click)="alternarGuardar(eventoSeleccionado)">
+          {{ eventoSeleccionado.guardado ? 'Guardado en Sus eventos' : 'Guardar en Sus eventos' }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+</div>

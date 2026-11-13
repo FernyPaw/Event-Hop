@@ -1,0 +1,25 @@
+<div class="user-container">
+  <h2>Mis Eventos Guardados</h2>
+  <p class="subtitle">Eventos que te interesan</p>
+
+  <div class="eventos-grid" *ngIf="misEventosGuardados.length > 0">
+    <div class="evento-card" *ngFor="let ev of misEventosGuardados">
+      <div class="evento-imagen">
+        <img [src]="ev.imagenUrl" alt="Banner">
+      </div>
+      <div class="evento-details">
+        <h3>{{ ev.titulo }}</h3>
+        <p>{{ ev.fecha }} a las {{ ev.hora }} hrs</p>
+        <p>Costo: <strong>{{ ev.costo === 0 ? 'Gratuito' : '$' + ev.costo + ' MXN' }}</strong></p>
+        <div class="card-actions">
+          <button type="button" class="btn-primary" (click)="comprarBoleto(ev)">Comprar / Apartar lugar</button>
+          <button type="button" class="btn-delete" (click)="removerDeGuardados(ev.id)">Quitar de guardados</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="misEventosGuardados.length === 0">
+    <p>No tienes eventos guardados actualmente.</p>
+  </div>
+</div>

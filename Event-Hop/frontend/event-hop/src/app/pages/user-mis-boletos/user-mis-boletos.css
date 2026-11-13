@@ -1,0 +1,123 @@
+.user-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: inherit;
+}
+.user-container h2 {
+  color: #333;
+  margin-bottom: 5px;
+}
+.subtitle {
+  color: #666;
+  margin-bottom: 25px;
+  font-size: 0.95rem;
+}
+.boletos-grid {
+  display: grid;
+  gap: 15px;
+}
+.boleto-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1.5px solid #eee;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.boleto-card:hover {
+  border-color: #20b2aa;
+  background-color: #fafafa;
+}
+.boleto-info h3 {
+  margin: 0 0 6px 0;
+  color: #f26b6b;
+}
+.boleto-info p {
+  margin: 3px 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+.badge-estado {
+  display: inline-block;
+  margin-top: 8px;
+  background: #e6f4ea;
+  color: #137333;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+.ver-boleto-btn {
+  font-weight: bold;
+  color: #20b2aa;
+}
+.ticket-detail-card {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  position: relative;
+  border-top: 6px solid #20b2aa;
+}
+.btn-back {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+.btn-back:hover {
+  color: #20b2aa;
+}
+.ticket-header h2 {
+  color: #333;
+  margin: 0 0 5px 0;
+}
+.cafe-name {
+  color: #20b2aa;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+.ticket-body p {
+  color: #555;
+  margin: 6px 0;
+}
+.codigo-box {
+  margin-top: 30px;
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  border: 2px dashed #ddd;
+}
+.codigo-label {
+  margin: 0 0 10px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+.codigo-valor {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #f26b6b;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+.codigo-instruccion {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #888;
+}
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  background: #fff;
+  border-radius: 12px;
+  color: #666;
+}
