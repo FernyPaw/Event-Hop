@@ -1,0 +1,22 @@
+<div class="cafe-container">
+  <div class="form-card">
+    <h2>Perfil de la Cafetería</h2>
+    <p class="subtitle">Actualiza la información visible para los usuarios</p>
+    
+    <form (ngSubmit)="guardarPerfil()">
+      <div class="form-group">
+        <label>Nombre del establecimiento</label>
+        <input type="text" [(ngModel)]="cafeteria.nombre" name="nombre" required>
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea [(ngModel)]="cafeteria.descripcion" name="descripcion" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Teléfono de contacto</label>
+        <input type="text" [(ngModel)]="cafeteria.telefono" name="telefono">
+      </div>
+      <button type="submit" class="btn-primary">Guardar Cambios</button>
+    </form>
+  </div>
+</div>

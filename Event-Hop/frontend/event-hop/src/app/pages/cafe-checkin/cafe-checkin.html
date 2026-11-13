@@ -1,0 +1,33 @@
+<div class="cafe-container">
+ 
+  <div class="form-card" *ngIf="!eventoSeleccionado">
+    <h2>Selecciona el Evento</h2>
+    <p class="subtitle">Elige el evento para comenzar el registro de entrada de los asistentes</p>
+
+    <div class="eventos-checkin-grid">
+      <div class="evento-select-card" *ngFor="let ev of misEventos" (click)="seleccionarEvento(ev)">
+        <h3>{{ ev.titulo }}</h3>
+        <p>{{ ev.fecha }} a las {{ ev.hora }} hrs</p>
+        <button type="button" class="btn-select">Seleccionar Evento</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="form-card checkin-card" *ngIf="eventoSeleccionado">
+    <button type="button" class="btn-back" (click)="regresarASeccionEventos()">Regresar a eventos</button>
+    
+    <h2>Control de Acceso</h2>
+    <p class="evento-activo-titulo">{{ eventoSeleccionado.titulo }}</p>
+    <p class="subtitle">Ingresa el código del boleto del cliente para validar su acceso</p>
+    
+    <div class="form-group">
+      <input type="text" [(ngModel)]="codigoIngreso" placeholder="Ej. EH-101" (keyup.enter)="verificarCodigo()">
+    </div>
+    <button type="button" class="btn-primary" (click)="verificarCodigo()">Verificar Código</button>
+
+    <div class="resultado-box" *ngIf="resultadoCheckin" [class.success]="resultadoCheckin.exito" [class.error]="!resultadoCheckin.exito">
+      <p>{{ resultadoCheckin.mensaje }}</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,77 @@
+<div class="container mt-4">
+  <h2 class="mb-4">Solicitudes de Cafeterías</h2>
+
+    <div class="card shadow-sm mb-4">
+    <div class="card-header bg-dark text-white">
+      <h5 class="mb-0">Cafeterías Pendientes de Aprobación</h5>
+    </div>
+    <div class="card-body">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Cafetería / Correo</th>
+            <th>RFC</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cafe of cafesPendientes">
+            <td>
+              <strong>{{ cafe.nombre }}</strong><br>
+              <small class="text-muted">{{ cafe.email }}</small>
+            </td>
+            <td><code>{{ cafe.rfc }}</code></td>
+            <td>
+              <button class="btn btn-primary btn-sm" (click)="verDetalles(cafe)">
+                Revisar Solicitud
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="cafesPendientes.length === 0">
+            <td colspan="3" class="text-center text-muted">No hay cafeterías pendientes de aprobación.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- detalles-->
+  <div class="card border-primary shadow-sm" *ngIf="cafeSeleccionada">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Detalles de: {{ cafeSeleccionada.nombre }}</h5>
+      <button class="btn btn-sm btn-light" (click)="cerrarDetalles()">X</button>
+    </div>
+    <div class="card-body">
+      <p><strong>Correo:</strong> {{ cafeSeleccionada.email }}</p>
+      <p><strong>RFC:</strong> {{ cafeSeleccionada.rfc }}</p>
+      <p><strong>Dirección:</strong> {{ cafeSeleccionada.direccion }}</p>
+      <p><strong>Descripción:</strong> {{ cafeSeleccionada.descripcion }}</p>
+
+      <hr>
+
+      <!-- Botones -->
+      <div *ngIf="!mostrandoRechazo">
+        <button class="btn btn-success me-2" (click)="aprobarCafeteria(cafeSeleccionada.id)">
+          Aceptar Cafetería
+        </button>
+        <button class="btn btn-danger" (click)="mostrandoRechazo = true">
+          Rechazar
+        </button>
+      </div>
+
+      <!--mensaje-->
+      <div *ngIf="mostrandoRechazo" class="mt-3">
+        <label class="form-label text-danger"><strong>Motivo del rechazo (este mensaje lo verá la cafetería al entrar):</strong></label>
+        <textarea class="form-control mb-2" rows="3" [(ngModel)]="mensajeRechazo" placeholder="Escribe aquí por qué no se aceptó..."></textarea>
+        
+        <button class="btn btn-danger me-2" (click)="confirmarRechazo(cafeSeleccionada.id)">
+          Enviar Rechazo
+        </button>
+        <button class="btn btn-secondary" (click)="mostrandoRechazo = false">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

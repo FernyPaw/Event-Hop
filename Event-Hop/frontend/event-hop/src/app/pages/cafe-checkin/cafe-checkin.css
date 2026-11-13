@@ -1,0 +1,157 @@
+.cafe-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: inherit;
+}
+
+.form-card {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.form-card h2 {
+  color: #f26b6b;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.eventos-checkin-grid {
+  display: grid;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.evento-select-card {
+  border: 1.5px solid #ddd;
+  padding: 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: #fafafa;
+}
+
+.evento-select-card:hover {
+  border-color: #20b2aa;
+  background-color: #ffffff;
+}
+
+.evento-select-card h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.evento-select-card p {
+  margin: 0 0 15px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.btn-select {
+  background: #20b2aa;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.btn-select:hover {
+  background: #19948d;
+}
+
+.checkin-card {
+  text-align: center;
+  position: relative;
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+.btn-back:hover {
+  color: #20b2aa;
+}
+
+.evento-activo-titulo {
+  font-weight: bold;
+  color: #20b2aa;
+  font-size: 1.05rem;
+  margin-bottom: 5px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  background-color: #fafafa;
+}
+
+input:focus {
+  outline: none;
+  border-color: #20b2aa;
+  background-color: #fff;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background-color: #20b2aa;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #19948d;
+}
+
+.resultado-box {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.resultado-box.success {
+  background-color: #e6f4ea;
+  color: #137333;
+  border: 1px solid #ceead6;
+}
+
+.resultado-box.error {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}

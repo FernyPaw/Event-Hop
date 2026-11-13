@@ -1,0 +1,30 @@
+import { Routes } from '@angular/router';
+import { Home } from './pages/home/home';
+import { Login } from './pages/login/login';
+import { Registro } from './pages/registro/registro';
+import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard';
+import { AdminCafeterias } from './pages/admin-cafeterias/admin-cafeterias';
+import { UserPerfil } from './pages/user-perfil/user-perfil';
+import { CafeDashboard } from './pages/cafe-dashboard/cafe-dashboard';
+import { CafeCheckin } from './pages/cafe-checkin/cafe-checkin';
+import { CafePerfil } from './pages/cafe-perfil/cafe-perfil';
+import { UserMisEventos } from './pages/user-mis-eventos/user-mis-eventos';
+import { UserMisBoletos } from './pages/user-mis-boletos/user-mis-boletos';
+import { ListaEvent } from './pages/lista-event/lista-event';
+
+export const routes: Routes = [
+  { path: '', component: Home },
+  { path: 'login', component: Login },
+  { path: 'registro', component: Registro },
+  { path: 'eventos', component: ListaEvent },
+  { path: 'admin', component: AdminDashboardComponent },
+  { path: 'admin/cafeterias', component: AdminCafeterias },
+  { path: 'admin/perfil', component: UserPerfil },
+  { path: 'cafeteria', component: CafeDashboard },
+  { path: 'cafeteria/checkin', component: CafeCheckin },
+  { path: 'cafeteria/perfil', component: CafePerfil },
+  { path: 'usuario/mis-eventos', component: UserMisEventos },
+  { path: 'usuario/mis-boletos', component: UserMisBoletos },
+  { path: 'usuario/perfil', component: UserPerfil },
+  { path: '**', redirectTo: '' }
+];

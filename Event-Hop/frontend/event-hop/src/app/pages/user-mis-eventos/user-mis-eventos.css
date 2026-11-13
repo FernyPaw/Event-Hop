@@ -1,0 +1,92 @@
+.user-container {
+  padding-top: 90px;
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: inherit;
+}
+.user-container h2 {
+  color: #333;
+  margin-bottom: 5px;
+}
+.subtitle {
+  color: #666;
+  margin-bottom: 25px;
+  font-size: 0.95rem;
+}
+.eventos-grid {
+  display: grid;
+  gap: 20px;
+}
+.evento-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  border: 1.5px solid #eee;
+}
+.evento-imagen {
+  width: 120px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.evento-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.evento-details {
+  flex-grow: 1;
+}
+.evento-details h3 {
+  margin: 0 0 6px 0;
+  color: #f26b6b;
+}
+.evento-details p {
+  margin: 3px 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+.card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.btn-primary {
+  background-color: #20b2aa;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+.btn-primary:hover {
+  background-color: #19948d;
+}
+.btn-delete {
+  background: #ffebee;
+  color: #c62828;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+.btn-delete:hover {
+  background: #ffcdd2;
+}
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  background: #fff;
+  border-radius: 12px;
+  color: #666;
+}

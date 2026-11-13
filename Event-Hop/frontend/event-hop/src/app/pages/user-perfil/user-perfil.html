@@ -1,0 +1,17 @@
+<div class="user-container">
+  <div class="perfil-card">
+    <div class="avatar-grande" [class.admin-avatar]="esAdmin">
+      {{ perfil.iniciales }}
+    </div>
+    
+    <h2>{{ perfil.nombre }}</h2>
+    <p class="rol-sub">{{ perfil.subtitulo }}</p>
+
+    <div class="stats-box">
+      <div class="stat-item">
+        <h3>{{ perfil.estadisticaTitulo }}</h3>
+        <p class="stat-value">{{ perfil.estadisticaValor }}</p>
+      </div>
+    </div>
+  </div>
+</div>

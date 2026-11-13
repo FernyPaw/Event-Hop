@@ -1,0 +1,135 @@
+<div class="cafe-container">
+  <div class="cafe-header">
+    <div class="cafe-info">
+      <h1>{{ cafeteria.nombre }}</h1>
+      <p>Panel de administración y control</p>
+    </div>
+    
+    <div class="status-badge" [class.verified]="cafeteria.verificado" [class.pending]="!cafeteria.verificado">
+      {{ cafeteria.verificado ? 'Cafetería Verificada' : 'Pendiente de Aprobación' }}
+    </div>
+  </div>
+
+  <div class="alert-card-pending" *ngIf="!cafeteria.verificado">
+    <h2>Cuenta en proceso de validación</h2>
+    <p>Tu solicitud ha sido enviada</p>
+    <p class="sub-text">Por el momento las funciones de creación y gestión de eventos se encuentran desactivadas</p>
+  </div>
+
+  <ng-container *ngIf="cafeteria.verificado">
+    <!-- Pestañas limpias y esenciales -->
+    <div class="cafe-tabs">
+      <button type="button" [class.active]="pestanaActiva === 'panel'" (click)="pestanaActiva = 'panel'">
+        Panel de Control
+      </button>
+      <button type="button" [class.active]="pestanaActiva === 'gestion'" (click)="pestanaActiva = 'gestion'">
+        Mis Eventos ({{ misEventos.length }})
+      </button>
+      <button type="button" [class.active]="pestanaActiva === 'crear'" (click)="pestanaActiva = 'crear'">
+        Crear Evento
+      </button>
+    </div>
+
+   
+    <div class="section-content" *ngIf="pestanaActiva === 'panel'">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Eventos Creados</h3>
+          <p class="stat-number">{{ estadisticas.totalEventos }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Eventos guardados</h3>
+          <p class="stat-number">{{ estadisticas.guardadosTotal }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Apartados</h3>
+          <p class="stat-number">{{ estadisticas.inscritosTotal }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Porcentaje de Asistencia</h3>
+          <p class="stat-number">{{ estadisticas.porcentajeAsistencia }}%</p>
+        </div>
+      </div>
+    </div>
+
+  
+    <div class="section-content" *ngIf="pestanaActiva === 'gestion'">
+      <div class="eventos-grid">
+        <div class="evento-card" *ngFor="let ev of misEventos">
+          <div class="evento-imagen" *ngIf="ev.imagenUrl">
+            <img [src]="ev.imagenUrl" alt="Banner del evento">
+          </div>
+          <div class="evento-details">
+            <h3>{{ ev.titulo }}</h3>
+            <p>{{ ev.fecha }} a las {{ ev.hora }} hrs</p>
+            <p>
+              <span class="tag-tipo" [class.gratis]="ev.esGratis" [class.paga]="!ev.esGratis">
+                {{ ev.esGratis ? 'Gratuito' : '$' + ev.costo + ' MXN' }}
+              </span>
+              | Cupo: {{ ev.cupo }} | Guardados: {{ ev.guardados }} | Asistidos: {{ ev.asistidos }}
+            </p>
+          </div>
+          <button type="button" class="btn-delete" (click)="eliminarEvento(ev.id)">Eliminar</button>
+        </div>
+      </div>
+    </div>
+
+   
+    <div class="section-content" *ngIf="pestanaActiva === 'crear'">
+      <div class="form-card">
+        <h2>Registrar Nuevo Evento</h2>
+        <form (ngSubmit)="crearEvento()">
+          <div class="form-group">
+            <label>Título del evento</label>
+            <input type="text" [(ngModel)]="nuevoEvento.titulo" name="titulo" required>
+          </div>
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea [(ngModel)]="nuevoEvento.descripcion" name="descripcion" rows="3"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>Banner o imagen del evento (desde tu dispositivo)</label>
+            <input type="file" (change)="onFileSelected($event)" accept="image/*">
+          </div>
+
+          <div class="form-group">
+            <label>Tipo de evento</label>
+            <div class="radio-group">
+              <label>
+                <input type="radio" [value]="true" [(ngModel)]="nuevoEvento.esGratis" name="esGratis"> Gratuito
+              </label>
+              <label>
+                <input type="radio" [value]="false" [(ngModel)]="nuevoEvento.esGratis" name="esGratis"> De paga
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" *ngIf="!nuevoEvento.esGratis">
+              <label>Costo (MXN)</label>
+              <input type="number" [(ngModel)]="nuevoEvento.costo" name="costo" min="0">
+            </div>
+            <div class="form-group">
+              <label>Cupo máximo</label>
+              <input type="number" [(ngModel)]="nuevoEvento.cupo" name="cupo" min="1" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fecha</label>
+              <input type="date" [(ngModel)]="nuevoEvento.fecha" name="fecha" required>
+            </div>
+            <div class="form-group">
+              <label>Hora</label>
+              <input type="time" [(ngModel)]="nuevoEvento.hora" name="hora" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary">Publicar Evento</button>
+        </form>
+      </div>
+    </div>
+  </ng-container>
+</div>
