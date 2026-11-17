@@ -1,0 +1,71 @@
+@api = http://localhost:5067
+@token = PEGA_AQUI_EL_TOKEN
+@adminToken = PEGA_AQUI_EL_TOKEN_ADMIN
+@solicitudId = PEGA_AQUI_EL_ID_DE_LA_CAFETERIA
+
+### Crear un usuario. Usar correo distinto si ya existe.
+POST {{api}}/api/auth/registro
+Content-Type: application/json
+
+{
+  "nombre": "Usuario Prueba",
+  "correo": "usuario.prueba@example.com",
+  "password": "Prueba12345",
+  "rol": "usuario",
+  "rfc": ""
+}
+
+### Iniciar sesión. Copiar el token de la respuesta a la variable token.
+POST {{api}}/api/auth/login
+Content-Type: application/json
+
+{
+  "correo": "usuario.prueba@example.com",
+  "password": "Prueba12345"
+}
+
+### Sesión actual. No devuelve contraseña ni hash.
+GET {{api}}/api/auth/yo
+Authorization: Bearer {{token}}
+
+### Sin token debe responder 401.
+GET {{api}}/api/auth/yo
+
+### Un usuario común no puede ver las solicitudes: debe responder 403.
+GET {{api}}/api/admin/solicitudes
+Authorization: Bearer {{token}}
+
+### Solicitud de cafetería. El RFC tiene formato de ejemplo, no se consulta al SAT.
+POST {{api}}/api/auth/registro
+Content-Type: application/json
+
+{
+  "nombre": "Cafetería Prueba",
+  "correo": "cafeteria.prueba@example.com",
+  "password": "Prueba12345",
+  "rol": "cafeteria",
+  "rfc": "ABC901012AB1"
+}
+
+### Antes de aprobar, debe responder 403.
+POST {{api}}/api/auth/login
+Content-Type: application/json
+
+{
+  "correo": "cafeteria.prueba@example.com",
+  "password": "Prueba12345"
+}
+
+### Usar el token de un administrador creado con el comando local.
+GET {{api}}/api/admin/solicitudes
+Authorization: Bearer {{adminToken}}
+
+### Aprobar. Después la cafetería puede iniciar sesión.
+PUT {{api}}/api/admin/solicitudes/{{solicitudId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "estado": "aprobada",
+  "motivo": ""
+}
