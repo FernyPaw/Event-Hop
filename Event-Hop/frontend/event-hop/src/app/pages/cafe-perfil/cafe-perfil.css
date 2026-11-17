@@ -1,0 +1,62 @@
+.cafe-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: inherit;
+}
+.form-card {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+.form-card h2 {
+  color: #f26b6b;
+  margin-bottom: 5px;
+  text-align: center;
+}
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+.form-group {
+  margin-bottom: 15px;
+}
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #444;
+  font-size: 0.9rem;
+}
+input, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  background-color: #fafafa;
+}
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #20b2aa;
+  background-color: #fff;
+}
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background-color: #20b2aa;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.btn-primary:hover {
+  background-color: #19948d;
+}
