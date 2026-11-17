@@ -1,0 +1,25 @@
+<section class="pagos">
+  <h2>Mis pagos</h2>
+  <p class="aviso">PayPal Sandbox y Stripe: solo dinero de prueba. No utilices datos bancarios reales.</p>
+  <p>Al terminar el pago, confirma tu compra aquí. Si hubo un problema de conexión, consulta su estado antes de volver a comprar.</p>
+  <p *ngIf="cargando" role="status">Cargando pagos…</p>
+  <p *ngIf="error" role="alert">{{ error }}</p>
+  <p *ngIf="mensaje" role="status">{{ mensaje }}</p>
+  <button type="button" [disabled]="enviando || cargando" (click)="actualizar()">Actualizar lista</button>
+  <a routerLink="/usuario/mis-boletos">Ver Mis boletos</a>
+  <p *ngIf="!cargando && !error && pagos.length === 0">No tienes intentos de pago.</p>
+  <article *ngFor="let pago of pagos" [class.seleccionado]="pago.pagoId === seleccionado">
+    <h3>{{ pago.titulo }}</h3>
+    <p>Método: {{ pago.proveedor === 'stripe' ? 'Stripe de prueba' : 'PayPal Sandbox' }}</p>
+    <p>{{ pago.importe | currency:'MXN':'symbol':'1.2-2' }} MXN — Sandbox</p>
+    <p><strong>{{ nombreEstado(pago) }}</strong></p>
+    <p *ngIf="pago.boletoUtilizado">Boleto utilizado para entrar. No admite cancelación ni reembolso.</p>
+    <p *ngIf="pago.estado === 'pendiente' && pago.proveedor !== 'stripe'">Retención hasta {{ pago.vence | date:'dd/MM/yyyy HH:mm' }} (hora de tu equipo).</p>
+    <p *ngIf="pago.estado === 'pendiente' && pago.proveedor === 'stripe'">Tu lugar sigue reservado hasta verificar la expiración sin pago o confirmar la cancelación. Cerrar Stripe no cancela la compra.</p>
+    <div class="acciones">
+      <button type="button" *ngIf="pago.estado === 'pendiente'" [disabled]="enviando" (click)="operar(pago, 'orden')">{{ pago.proveedor === 'stripe' ? 'Continuar en Stripe de prueba' : 'Continuar en PayPal Sandbox' }}</button>
+      <button type="button" *ngIf="pago.estado === 'pendiente' || pago.estado === 'capturando'" [disabled]="enviando" (click)="operar(pago, 'confirmar')">{{ pago.estado === 'capturando' ? 'Recuperar resultado del cobro' : 'Ya aprobé: confirmar compra' }}</button>
+      <button type="button" *ngIf="!pago.boletoUtilizado && (pago.estado === 'pendiente' || pago.estado === 'vencido' || pago.estado === 'pagado' || pago.estado === 'reembolsando')" [disabled]="enviando" (click)="operar(pago, 'cancelar')">{{ pago.estado === 'pagado' ? 'Cancelar y reembolsar' : pago.estado === 'reembolsando' ? 'Revisar reembolso' : 'Cancelar intento' }}</button>
+    </div>
+  </article>
+</section>

@@ -1,0 +1,52 @@
+<div class="user-container">
+  <h2>Mis boletos</h2>
+  <p class="subtitle">Consulta tus boletos y su estado.</p>
+  <p><a routerLink="/usuario/pagos">Mis pagos y reembolsos de prueba</a></p>
+  <p *ngIf="cargando" role="status">Cargando boletos…</p>
+  <p *ngIf="error" role="alert">{{ error }}</p>
+  <p *ngIf="mensaje" role="status">{{ mensaje }}</p>
+
+  <!-- Lista boletos -->
+  <div class="boletos-grid" *ngIf="!boletoSeleccionado">
+    <div class="boleto-card" *ngFor="let bol of misBoletos" (click)="verDetalleBoleto(bol)">
+      <div class="boleto-info">
+        <h3>{{ bol.titulo }}</h3>
+        <p> {{ bol.cafeteria }}</p>
+        <p> {{ bol.fecha }} a las {{ bol.hora }} hrs</p>
+        <span class="badge-estado">{{ bol.estado }}</span>
+      </div>
+      <div class="ver-boleto-btn">Ver Boleto &rarr;</div>
+    </div>
+
+    <div class="empty-state" *ngIf="!cargando && !error && misBoletos.length === 0">
+      <p>No tienes boletos o lugares apartados </p>
+    </div>
+  </div>
+
+  <!-- Detalle boleto -->
+  <div class="ticket-detail-card" *ngIf="boletoSeleccionado">
+    <button type="button" class="btn-back" (click)="cerrarDetalle()">&larr; Regresar a mis boletos</button>
+    
+    <div class="ticket-header">
+      <h2>{{ boletoSeleccionado.titulo }}</h2>
+      <p class="cafe-name">{{ boletoSeleccionado.cafeteria }}</p>
+    </div>
+
+    <div class="ticket-body">
+      <p><strong>Fecha:</strong> {{ boletoSeleccionado.fecha }}</p>
+      <p><strong>Hora:</strong> {{ boletoSeleccionado.hora }} hrs</p>
+      <p><strong>Dirección:</strong> {{ boletoSeleccionado.direccion }}</p>
+      <p><strong>Estado:</strong> {{ boletoSeleccionado.estado }}</p>
+
+      <div class="codigo-box" *ngIf="boletoSeleccionado.estado === 'confirmada' && !boletoSeleccionado.fechaEntrada">
+        <p class="codigo-label">Tu código de acceso:</p>
+        <div class="codigo-valor">{{ boletoSeleccionado.codigo }}</div>
+        <p class="codigo-instruccion">{{ boletoSeleccionado.fechaEntrada ? 'Este boleto ya se utilizó para entrar.' : 'Presenta este código a la cafetería el día del evento. Solo puede usarse una vez.' }}</p>
+      </div>
+      <p *ngIf="boletoSeleccionado.estado === 'cancelada'">Este boleto está cancelado y su código ya no es válido.</p>
+      <p *ngIf="boletoSeleccionado.fechaEntrada">Este boleto ya se utilizó para entrar el {{ boletoSeleccionado.fechaEntrada | date:'dd/MM/yyyy HH:mm' }} (hora de tu equipo).</p>
+      <a *ngIf="boletoSeleccionado.pagoId" routerLink="/usuario/pagos" [queryParams]="{ evento: boletoSeleccionado.eventoId, pago: boletoSeleccionado.pagoId }">Ver pago / solicitar reembolso</a>
+      <button type="button" class="btn-back" *ngIf="boletoSeleccionado.estado === 'confirmada' && !boletoSeleccionado.pagoId && !boletoSeleccionado.fechaEntrada" [disabled]="enviando" (click)="cancelar(boletoSeleccionado)">{{ enviando ? 'Cancelando…' : 'Cancelar reserva' }}</button>
+    </div>
+  </div>
+</div>

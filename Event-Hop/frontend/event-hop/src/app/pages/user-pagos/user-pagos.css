@@ -1,0 +1,11 @@
+.pagos { max-width: 850px; padding: 36px; margin: auto; color: #263238; }
+h2, h3 { color: #ff6570; }
+.aviso { background: #ffcf78; padding: 16px; border-radius: 8px; }
+article { margin: 20px 0; padding: 22px; background: white; border: 1px solid #ddd; border-radius: 10px; }
+article.seleccionado { border: 2px solid #1bb1ad; }
+.acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+button { background: #1bb1ad; color: white; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; }
+button:disabled { opacity: .55; cursor: wait; }
+a { color: #007f88; display: inline-block; margin: 12px; }
+[role=alert] { color: #a41522; }
+@media(max-width:600px) { .pagos { padding: 18px; } }

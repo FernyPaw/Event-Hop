@@ -1,0 +1,11 @@
+:host { display: block; padding: 24px; }
+section { max-width: 800px; margin: auto; }
+h2 { color: #ff6670; }
+form, article { background: white; padding: 20px; margin: 18px 0; border: 1px solid #19b0ac; border-radius: 10px; }
+label { display: block; margin: 12px 0 6px; }
+input:not([type=checkbox]), textarea, select { box-sizing: border-box; width: 100%; padding: 10px; font: inherit; }
+button { padding: 10px; margin: 6px 6px 0 0; border: 0; border-radius: 4px; background: #159d9b; color: white; cursor: pointer; }
+button:disabled { opacity: .6; cursor: default; }
+.error { color: #b00020; }
+.texto { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media(max-width:480px) { :host { padding: 12px; } form,article { padding: 14px; } }

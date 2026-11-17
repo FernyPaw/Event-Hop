@@ -1,0 +1,117 @@
+<div class="contenedor-principal">
+  
+  <header class="banner-bnvnd">
+    <h1>Encuentra tu próxima gran experiencia en cafeterías locales</h1>
+    <p>Explora talleres, música acústica, clubes de lectura y más en un solo lugar.</p>
+  </header>
+
+
+  <section class="evento" *ngIf="!eventoSeleccionado">
+    <h2>Eventos</h2>
+    <p *ngIf="cargando" role="status">Cargando eventos…</p>
+    <p *ngIf="error" role="alert">{{ error }}</p>
+
+  
+    <div class="barra-filtros">
+     <div class="grupo-filtro">
+        <label for="filtroCafeteria">Cafetería:</label>
+        <select id="filtroCafeteria" [(ngModel)]="filtroCafeteria">
+          <option value="">Todas las cafeterías</option>
+          <!-- Se generan de forma dinamica -->
+          <option *ngFor="let cafeteria of listaCafeterias" [value]="cafeteria">
+            {{ cafeteria }}
+          </option>
+        </select>
+      </div>
+
+      <div class="grupo-filtro">
+        <label for="filtroDia">Dia:</label>
+        <select id="filtroDia" [(ngModel)]="filtroDia">
+          <option value="">Todos los dias</option>
+          <option *ngFor="let dia of dias" [value]="dia">{{ dia }}</option>
+        </select>
+      </div>
+
+      <div class="grupo-filtro">
+        <label for="filtroTipo">Tipo:</label>
+        <select id="filtroTipo" [(ngModel)]="filtroTipo">
+          <option value="">Todos</option>
+          <option value="gratis">Gratis</option>
+          <option value="paga">De paga</option>
+        </select>
+      </div>
+    </div>
+
+   
+    <div class="grid-eventos">
+      
+      <article class="evento" *ngFor="let evento of eventosFiltrados">
+        <div>
+          <div class="cabecera-tarjeta">
+            <span class="etiqueta-categoria">{{ evento.categoria }}</span>
+            <span class="etiqueta-precio">{{ evento.esGratis ? 'Gratis' : '$' + evento.costo + ' MXN' }}</span>
+          </div>
+          <h3>{{ evento.titulo }}</h3>
+          <p class="lugar">{{ evento.cafeteria }}</p>
+          <p class="fecha">{{ diaEvento(evento) }} {{ evento.fecha }} - {{ evento.hora }}</p>
+        </div>
+
+        <button type="button" class="boton-ver" (click)="verDetalle(evento)">
+          Ver detalles
+        </button>
+      </article>
+
+    </div>
+
+   
+    <p class="sin-resultados" *ngIf="!cargando && !error && eventosFiltrados.length === 0">
+      No se encontraron eventos
+    </p>
+  </section>
+
+ 
+  <section class="vista-detalle" *ngIf="eventoSeleccionado">
+    <button type="button" class="boton-volver" (click)="cerrarDetalle()">
+      Volver a todos los eventos
+    </button>
+
+    <div class="tarjeta-detalle-completa">
+      <div class="cabecera-detalle">
+        <span class="etiqueta-categoria">{{ eventoSeleccionado.categoria }}</span>
+        <span class="etiqueta-precio">{{ eventoSeleccionado.esGratis ? 'Gratis' : '$' + eventoSeleccionado.costo + ' MXN' }}</span>
+      </div>
+
+      <h2>{{ eventoSeleccionado.titulo }}</h2>
+      <img *ngIf="eventoSeleccionado.imagenUrl" [src]="eventoSeleccionado.imagenUrl" alt="Imagen del evento" style="max-width: 100%; max-height: 300px;">
+      
+      <div class="info-detalle">
+        <p><strong>Cafetería:</strong> {{ eventoSeleccionado.cafeteria }}</p>
+        <p><strong>Dirección:</strong> {{ eventoSeleccionado.direccion }}</p>
+        <p><strong>Fecha y hora:</strong> {{ eventoSeleccionado.fecha }} - {{ eventoSeleccionado.hora }}</p>
+        <p><strong>Modalidad:</strong> {{ eventoSeleccionado.esGratis ? 'Entrada gratuita' : 'Evento de paga ($' + eventoSeleccionado.costo + ' MXN)' }}</p>
+        <p><strong>Cupo máximo:</strong> {{ eventoSeleccionado.cupo }}</p>
+        <p><strong>Lugares disponibles:</strong> {{ eventoSeleccionado.disponibles ?? eventoSeleccionado.cupo }}</p>
+      </div>
+
+      <div class="descripcion-detalle">
+        <h3>Acerca de este evento</h3>
+        <p>{{ eventoSeleccionado.descripcion }}</p>
+      </div>
+
+      <p *ngIf="error" role="alert">{{ error }}</p>
+      <p *ngIf="mensaje" role="status">{{ mensaje }}</p>
+      <div class="acciones-detalle" *ngIf="esUsuario">
+        <button type="button" class="boton-comprar" (click)="reservar(eventoSeleccionado)"
+          [disabled]="enviando || reservados.includes(eventoSeleccionado.id) || eventoSeleccionado.disponibles === 0">
+          {{ reservados.includes(eventoSeleccionado.id) ? 'Ya tienes una reserva' : eventoSeleccionado.esGratis ? 'Reservar lugar gratis' : 'Comprar con PayPal Sandbox' }}
+        </button>
+        <button type="button" class="boton-comprar" *ngIf="!eventoSeleccionado.esGratis" (click)="comprar(eventoSeleccionado, 'stripe')" [disabled]="enviando || reservados.includes(eventoSeleccionado.id) || eventoSeleccionado.disponibles === 0">Comprar con Stripe de prueba</button>
+        <button type="button" class="boton-guardar" [disabled]="enviando" (click)="guardar(eventoSeleccionado)">
+          {{ guardados.includes(eventoSeleccionado.id) ? 'Quitar de guardados' : 'Guardar evento' }}
+        </button>
+        <p *ngIf="!eventoSeleccionado.esGratis">PayPal Sandbox y Stripe de prueba: sin dinero real. Revisa compras pendientes en Mis pagos antes de intentar otro método.</p>
+      </div>
+    </div>
+  </section>
+
+</div>

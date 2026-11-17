@@ -1,0 +1,157 @@
+<div class="cafe-container">
+  <div class="cafe-header">
+    <div class="cafe-info">
+      <h1>{{ cafeteria.nombre }}</h1>
+      <p>Panel de administración y control</p>
+    </div>
+    
+    <div class="status-badge" [class.verified]="cafeteria.verificado" [class.pending]="!cafeteria.verificado">
+      {{ cafeteria.verificado ? 'Cafetería Verificada' : 'Pendiente de Aprobación' }}
+    </div>
+  </div>
+
+  <div class="alert-card-pending" *ngIf="!cafeteria.verificado">
+    <h2>Cuenta en proceso de validación</h2>
+    <p>Tu solicitud ha sido enviada</p>
+    <p class="sub-text">Podrás gestionar eventos cuando se apruebe tu solicitud.</p>
+  </div>
+
+  <ng-container *ngIf="cafeteria.verificado">
+    <!-- Pestañas limpias y esenciales -->
+    <div class="cafe-tabs">
+      <button type="button" [disabled]="enviando || leyendoImagen" [class.active]="pestanaActiva === 'panel'" (click)="pestanaActiva = 'panel'">
+        Panel de Control
+      </button>
+      <button type="button" [disabled]="enviando || leyendoImagen" [class.active]="pestanaActiva === 'gestion'" (click)="pestanaActiva = 'gestion'">
+        Mis Eventos ({{ misEventos.length }})
+      </button>
+      <button type="button" [disabled]="enviando || leyendoImagen" [class.active]="pestanaActiva === 'crear'" (click)="prepararNuevo()">
+        Crear Evento
+      </button>
+    </div>
+
+    <p *ngIf="cargando" role="status">Cargando eventos…</p>
+    <p *ngIf="error" role="alert">{{ error }}</p>
+    <p *ngIf="mensaje" role="status">{{ mensaje }}</p>
+
+   
+    <div class="section-content" *ngIf="pestanaActiva === 'panel'">
+      <button type="button" (click)="actualizarResumen()">Actualizar indicadores</button>
+      <p *ngIf="errorResumen" role="alert">{{ errorResumen }}</p>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Eventos Creados</h3>
+          <p class="stat-number">{{ cargando || error ? '—' : misEventos.length }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Veces guardados</h3>
+          <p class="stat-number">{{ resumen?.favoritos ?? '—' }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Reservas confirmadas</h3>
+          <p class="stat-number">{{ resumen?.reservas ?? '—' }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Entradas registradas</h3>
+          <p class="stat-number">{{ resumen?.entradas ?? '—' }}</p>
+        </div>
+      </div>
+    </div>
+
+  
+    <div class="section-content" *ngIf="pestanaActiva === 'gestion'">
+      <p *ngIf="!cargando && misEventos.length === 0">Todavía no tienes eventos registrados.</p>
+      <div class="eventos-grid">
+        <div class="evento-card" *ngFor="let ev of misEventos">
+          <div class="evento-imagen" *ngIf="ev.imagenUrl">
+            <img [src]="ev.imagenUrl" alt="Banner del evento">
+          </div>
+          <div class="evento-details">
+            <h3>{{ ev.titulo }}</h3>
+            <p>{{ ev.fecha }} a las {{ ev.hora }} hrs</p>
+            <p>
+              <span class="tag-tipo" [class.gratis]="ev.esGratis" [class.paga]="!ev.esGratis">
+                {{ ev.esGratis ? 'Gratuito' : '$' + ev.costo + ' MXN' }}
+              </span>
+              | Cupo: {{ ev.cupo }} | {{ ev.categoria }}
+            </p>
+          </div>
+          <button type="button" class="btn-primary" [disabled]="enviando || leyendoImagen" (click)="editarEvento(ev)">Editar</button>
+          <button type="button" class="btn-delete" [disabled]="enviando" (click)="eliminarEvento(ev.id)">Eliminar</button>
+        </div>
+      </div>
+    </div>
+
+   
+    <div class="section-content" *ngIf="pestanaActiva === 'crear'">
+      <div class="form-card">
+        <h2>{{ editandoId ? 'Editar Evento' : 'Registrar Nuevo Evento' }}</h2>
+        <form (ngSubmit)="crearEvento()">
+          <div class="form-group">
+            <label>Título del evento</label>
+            <input type="text" [(ngModel)]="nuevoEvento.titulo" name="titulo" minlength="3" maxlength="120" required>
+          </div>
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea [(ngModel)]="nuevoEvento.descripcion" name="descripcion" rows="3" maxlength="2000" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Categoría</label>
+            <select [(ngModel)]="nuevoEvento.categoria" name="categoria" required>
+              <option *ngFor="let categoria of categorias" [value]="categoria">{{ categoria }}</option>
+              <option *ngIf="editandoId && !categorias.includes(nuevoEvento.categoria)" [value]="nuevoEvento.categoria">{{ nuevoEvento.categoria }} (histórica)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Dirección donde se realizará</label>
+            <input type="text" [(ngModel)]="nuevoEvento.direccion" name="direccion" maxlength="250" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Banner o imagen del evento (desde tu dispositivo)</label>
+            <input type="file" [disabled]="enviando || leyendoImagen" (change)="onFileSelected($event)" accept="image/png,image/jpeg,image/webp">
+            <p>Opcional: PNG, JPEG o WebP, máximo 1 MB.</p>
+            <img *ngIf="nuevoEvento.imagenUrl" [src]="nuevoEvento.imagenUrl" alt="Vista previa" style="max-width: 100%; max-height: 180px;">
+            <button *ngIf="nuevoEvento.imagenUrl" type="button" [disabled]="enviando || leyendoImagen" (click)="nuevoEvento.imagenUrl = ''">Quitar imagen</button>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo de evento</label>
+            <div class="radio-group">
+              <label>
+                <input type="radio" [value]="true" [(ngModel)]="nuevoEvento.esGratis" name="esGratis"> Gratuito
+              </label>
+              <label>
+                <input type="radio" [value]="false" [(ngModel)]="nuevoEvento.esGratis" name="esGratis"> De paga
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" *ngIf="!nuevoEvento.esGratis">
+              <label>Costo (MXN)</label>
+              <input type="number" [(ngModel)]="nuevoEvento.costo" name="costo" min="0.01" max="100000" step="0.01" required>
+            </div>
+            <div class="form-group">
+              <label>Cupo máximo</label>
+              <input type="number" [(ngModel)]="nuevoEvento.cupo" name="cupo" min="1" max="10000" step="1" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fecha</label>
+              <input type="date" [(ngModel)]="nuevoEvento.fecha" name="fecha" required>
+            </div>
+            <div class="form-group">
+              <label>Hora</label>
+              <input type="time" [(ngModel)]="nuevoEvento.hora" name="hora" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary" [disabled]="enviando || leyendoImagen || cargando">{{ enviando ? 'Guardando…' : editandoId ? 'Guardar cambios' : 'Publicar Evento' }}</button>
+        </form>
+      </div>
+    </div>
+  </ng-container>
+</div>

@@ -1,0 +1,29 @@
+<div class="user-container">
+  <h2>Mis Eventos Guardados</h2>
+  <p class="subtitle">Eventos que te interesan</p>
+  <p *ngIf="cargando" role="status">Cargando guardados…</p>
+  <p *ngIf="error" role="alert">{{ error }}</p>
+  <p *ngIf="mensaje" role="status">{{ mensaje }} <a routerLink="/usuario/mis-boletos">Ver Mis boletos</a></p>
+
+  <div class="eventos-grid" *ngIf="misEventosGuardados.length > 0">
+    <div class="evento-card" *ngFor="let ev of misEventosGuardados">
+      <div class="evento-imagen">
+        <img *ngIf="ev.imagenUrl" [src]="ev.imagenUrl" alt="Imagen del evento">
+      </div>
+      <div class="evento-details">
+        <h3>{{ ev.titulo }}</h3>
+        <p>{{ ev.cafeteria }}</p>
+        <p>{{ ev.fecha }} a las {{ ev.hora }} hrs</p>
+        <p>Costo: <strong>{{ ev.costo === 0 ? 'Gratuito' : '$' + ev.costo + ' MXN' }}</strong></p>
+        <div class="card-actions">
+          <button type="button" class="btn-primary" [disabled]="enviando || ev.disponibles === 0" (click)="comprarBoleto(ev)">{{ ev.esGratis ? 'Reservar lugar gratis' : 'Comprar con PayPal Sandbox' }}</button>
+          <button type="button" class="btn-delete" [disabled]="enviando" (click)="removerDeGuardados(ev.id)">Quitar de guardados</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!cargando && !error && misEventosGuardados.length === 0">
+    <p>No tienes eventos guardados actualmente.</p>
+  </div>
+</div>
