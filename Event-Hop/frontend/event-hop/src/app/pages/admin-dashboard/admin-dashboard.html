@@ -1,29 +1,34 @@
 <div class="container">
   <h2>Panel de Administración - Event-Hop</h2>
+  <p>Resumen de usuarios, cafeterías y eventos.</p>
+  <button type="button" (click)="actualizar()" [disabled]="cargando">Actualizar indicadores</button>
+  <a class="btn-reportes" routerLink="/admin/reportes">Consultar reportes <span aria-hidden="true">→</span></a>
+  <p *ngIf="cargando" role="status">Cargando indicadores…</p>
+  <p *ngIf="error" role="alert">{{ error }}</p>
 
   <div class="row">
     <!-- Usuarios -->
     <div class="card">
       <h5>Usuarios Registrados</h5>
-      <h3 class="text-primary">{{ totalUsuarios }}</h3>
+      <h3 class="text-primary">{{ resumen?.totalUsuarios ?? '—' }}</h3>
     </div>
 
     <!-- Cafeterias-->
     <div class="card">
       <h5>Cafeterías Aceptadas</h5>
-      <h3 class="text-success">{{ cafeteriasAceptadas }}</h3>
+      <h3 class="text-success">{{ resumen?.cafeteriasAceptadas ?? '—' }}</h3>
     </div>
 
     <!-- solicitudes -->
     <div class="card">
       <h5>Solicitudes Totales</h5>
-      <h3 class="text-warning">{{ totalSolicitudesCafeterias }}</h3>
+      <h3 class="text-warning">{{ resumen?.totalSolicitudesCafeterias ?? '—' }}</h3>
     </div>
 
     <!-- Eventos -->
     <div class="card">
       <h5>Eventos Totales</h5>
-      <h3 class="text-info">{{ totalEventos }}</h3>
+      <h3 class="text-info">{{ resumen?.totalEventos ?? '—' }}</h3>
     </div>
   </div>
 </div>

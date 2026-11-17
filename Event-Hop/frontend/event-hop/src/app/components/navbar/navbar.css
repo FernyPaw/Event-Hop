@@ -1,3 +1,8 @@
+.fondo-menu { display: none; }
+@media (max-width: 760px) {
+  .fondo-menu { display: block; position: fixed; inset: 60px 0 0; background: #0005; border: 0; z-index: 850; }
+  .menu-lateral { max-width: calc(100vw - 62px); }
+}
 /* BARRA SUPERIOR */
 .barra-superior {
   position: fixed;

@@ -2,12 +2,12 @@
 <header class="barra-superior">
   <div class="izquierda-top">
     
-    <button type="button" class="boton-hamburguesa" (click)="alternarMenu()" title="Abrir o cerrar menú">
+    <button type="button" class="boton-hamburguesa" (click)="alternarMenu()" title="Abrir o cerrar menú" aria-label="Abrir o cerrar menú" [attr.aria-expanded]="menuAbierto" aria-controls="menu-principal">
       <span></span>
       <span></span>
       <span></span>
     </button>
-    <a href="#" class="logo-marca">Event-Hop!</a>
+    <a [routerLink]="rolActual === 'admin' ? '/admin' : rolActual === 'cafeteria' ? '/cafeteria' : '/'" class="logo-marca">Event-Hop!</a>
   </div>
 
   <div class="derecha-top">
@@ -24,7 +24,8 @@
 </header>
 
 
-<aside class="menu-lateral" [class.cerrado]="!menuAbierto">
+<button type="button" *ngIf="menuAbierto" class="fondo-menu" (click)="alternarMenu()" aria-label="Cerrar menú"></button>
+<aside id="menu-principal" class="menu-lateral" [class.cerrado]="!menuAbierto" [attr.inert]="!menuAbierto ? '' : null">
   
 
   <div class="perfil-usuario" *ngIf="estaLogueado">
@@ -43,21 +44,25 @@
   <hr class="divisor-menu">
 
 
-  <nav class="lista-secciones">
+  <nav class="lista-secciones" (click)="cerrarMenuMovil()">
     
   <!-- Usuario -->
     <ng-container *ngIf="rolActual === 'usuario' || !estaLogueado">
       <a routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{exact: true}" class="item-menu">Inicio</a>
       <a routerLink="/usuario/mis-eventos" routerLinkActive="activo" class="item-menu" *ngIf="estaLogueado">Mis eventos</a>
       <a routerLink="/usuario/mis-boletos" routerLinkActive="activo" class="item-menu" *ngIf="estaLogueado">Mis boletos</a>
+      <a routerLink="/usuario/pagos" routerLinkActive="activo" class="item-menu" *ngIf="estaLogueado">Mis pagos</a>
       <a routerLink="/usuario/perfil" routerLinkActive="activo" class="item-menu" *ngIf="estaLogueado">Perfil</a>
+      <a routerLink="/usuario/comunidad" routerLinkActive="activo" class="item-menu" *ngIf="estaLogueado">Reseñas y avisos</a>
     </ng-container>
 
   <!--Cafe -->
     <ng-container *ngIf="estaLogueado && rolActual === 'cafeteria'">
-      <a routerLink="/cafeteria" routerLinkActive="activo" class="item-menu">Gestión</a>
-      <a routerLink="/cafeteria/checkin" routerLinkActive="activo" class="item-menu">Registro de eventos</a>
+      <a routerLink="/cafeteria" routerLinkActive="activo" [routerLinkActiveOptions]="{exact: true}" class="item-menu">Gestión</a>
+      <a routerLink="/cafeteria/reportes" routerLinkActive="activo" class="item-menu">Reportes</a>
+      <a routerLink="/cafeteria/checkin" routerLinkActive="activo" class="item-menu">Asistentes y entradas</a>
       <a routerLink="/cafeteria/perfil" routerLinkActive="activo" class="item-menu">Perfil</a>
+      <a routerLink="/cafeteria/comunidad" routerLinkActive="activo" class="item-menu">Reseñas y avisos</a>
     </ng-container>
 
   <!-- Admin-->
@@ -65,18 +70,11 @@
       <a routerLink="/admin" routerLinkActive="activo" [routerLinkActiveOptions]="{exact: true}" class="item-menu">Gestión</a>
       <a routerLink="/admin/cafeterias" routerLinkActive="activo" class="item-menu">Cafeterías</a>
       <a routerLink="/admin/perfil" routerLinkActive="activo" class="item-menu">Perfil</a>
+      <a routerLink="/admin/categorias" routerLinkActive="activo" class="item-menu">Categorías</a>
+      <a routerLink="/admin/reportes" routerLinkActive="activo" class="item-menu">Reportes</a>
     </ng-container>
 
   </nav>
 
-  <!-- PRUEBA  -->
-  <div class="caja-pruebas">
-    <p>Vista previa de rol:</p>
-    <div class="botones-rol">
-      <button type="button" [class.activo]="rolActual === 'usuario'" (click)="cambiarRol('usuario')">Usuario</button>
-      <button type="button" [class.activo]="rolActual === 'cafeteria'" (click)="cambiarRol('cafeteria')">Cafetería</button>
-      <button type="button" [class.activo]="rolActual === 'admin'" (click)="cambiarRol('admin')">Admin</button>
-    </div>
-  </div>
 
 </aside>

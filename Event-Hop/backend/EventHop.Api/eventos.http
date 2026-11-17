@@ -1,0 +1,55 @@
+@api = http://localhost:5067/api
+@token = REEMPLAZAR_POR_TOKEN_DE_CAFETERIA_APROBADA
+@eventoId = REEMPLAZAR_POR_ID_DEL_EVENTO_DE_PRUEBA
+
+### Consultar mis eventos
+GET {{api}}/eventos/mios
+Authorization: Bearer {{token}}
+
+### Crear un evento desechable (solo ejecutar cuando quieras crearlo)
+POST {{api}}/eventos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "titulo": "Taller de prueba",
+  "descripcion": "Evento desechable para probar la conexión.",
+  "categoria": "Taller",
+  "direccion": "Calle de prueba 123",
+  "fecha": "2026-11-20",
+  "hora": "18:00",
+  "esGratis": true,
+  "costo": 0,
+  "cupo": 15,
+  "imagenUrl": ""
+}
+
+### Catálogo
+GET {{api}}/eventos
+Authorization: Bearer {{token}}
+
+### Detalle
+GET {{api}}/eventos/{{eventoId}}
+Authorization: Bearer {{token}}
+
+### Editar solo mi evento de prueba
+PUT {{api}}/eventos/{{eventoId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "titulo": "Taller de prueba editado",
+  "descripcion": "Se cambió el título y el cupo.",
+  "categoria": "Taller",
+  "direccion": "Calle de prueba 123",
+  "fecha": "2026-11-20",
+  "hora": "18:00",
+  "esGratis": true,
+  "costo": 0,
+  "cupo": 20,
+  "imagenUrl": ""
+}
+
+### Eliminar DEFINITIVAMENTE solo el evento desechable indicado arriba
+DELETE {{api}}/eventos/{{eventoId}}
+Authorization: Bearer {{token}}

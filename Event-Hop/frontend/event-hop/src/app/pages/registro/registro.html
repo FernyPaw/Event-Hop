@@ -3,7 +3,6 @@
     <h2>Crear Cuenta</h2>
     <p class="subtitle">Únete a Event-Hop</p>
 
-    // Rol 
     <div class="role-selector">
       <button 
         type="button" 
@@ -51,7 +50,9 @@
           id="password" 
           name="password" 
           [(ngModel)]="password" 
-          placeholder="Crea una contraseña" 
+          placeholder="Mínimo 8 caracteres, letras y números"
+          minlength="8"
+          maxlength="100"
           required>
       </div>
 
@@ -72,7 +73,8 @@
         </small>
       </div>
 
-      <button type="submit" class="btn-primary">
+      <p *ngIf="error" role="alert">{{ error }}</p>
+      <button type="submit" class="btn-primary" [disabled]="enviando">
         {{ rol === 'cafeteria' ? 'Enviar Solicitud' : 'Registrarme' }}
       </button>
     </form>

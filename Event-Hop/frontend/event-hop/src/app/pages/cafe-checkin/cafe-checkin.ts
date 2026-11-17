@@ -1,70 +1,72 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { EventosService, Evento } from '../../services/eventos.service';
+import { AsistenciasService, ListaAsistentes } from '../../services/asistencias.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-cafe-checkin',
-  standalone: true,
+  selector: 'app-cafe-checkin', standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './cafe-checkin.html',
-  styleUrl: './cafe-checkin.css'
+  templateUrl: './cafe-checkin.html', styleUrl: './cafe-checkin.css'
 })
-export class CafeCheckin {
-  
-  misEventos = [
-    { id: 1, titulo: 'Noche de poesía y café', fecha: '2026-11-20', hora: '18:00' },
-    { id: 2, titulo: 'Taller de filtrado artesanal', fecha: '2026-11-25', hora: '16:00' }
-  ];
+export class CafeCheckin implements OnInit {
+  private eventos = inject(EventosService);
+  private asistencias = inject(AsistenciasService);
+  private auth = inject(AuthService);
+  private detector = inject(ChangeDetectorRef);
+  misEventos: Evento[] = [];
+  eventoSeleccionado: Evento | null = null;
+  lista: ListaAsistentes | null = null;
+  codigoIngreso = '';
+  cargando = false;
+  enviando = false;
+  error = '';
+  mensaje = '';
 
-  // Evento seleccionado 
-  eventoSeleccionado: any = null;
-
-  codigoIngreso: string = '';
-  resultadoCheckin: { exito: boolean; mensaje: string } | null = null;
-
-  // Datos random
-  asistentesRegistrados = [
-    { codigo: 'EH-101', nombre: 'María González', eventoId: 1 },
-    { codigo: 'EH-102', nombre: 'Carlos Ramírez', eventoId: 1 },
-    { codigo: 'EH-201', nombre: 'Ana López', eventoId: 2 }
-  ];
-
- 
-  seleccionarEvento(evento: any) {
-    this.eventoSeleccionado = evento;
-    this.codigoIngreso = '';
-    this.resultadoCheckin = null;
+  async ngOnInit() {
+    this.cargando = true;
+    try { this.misEventos = await this.eventos.consultarMios(); }
+    catch (error) { this.error = this.auth.mensajeError(error); }
+    finally { this.cargando = false; this.detector.markForCheck(); }
+  }
+  async seleccionarEvento(evento: Evento) {
+    if (this.cargando || this.enviando) return;
+    this.eventoSeleccionado = evento; this.codigoIngreso = ''; this.mensaje = '';
+    await this.actualizar();
   }
   regresarASeccionEventos() {
-    this.eventoSeleccionado = null;
-    this.codigoIngreso = '';
-    this.resultadoCheckin = null;
+    if (this.cargando || this.enviando) return;
+    this.eventoSeleccionado = null; this.lista = null;
+    this.codigoIngreso = ''; this.error = ''; this.mensaje = '';
   }
-
-  // Verificar 
-  verificarCodigo() {
-    if (!this.codigoIngreso.trim()) {
-      this.resultadoCheckin = { exito: false, mensaje: 'Por favor ingresa un código válido.' };
+  async actualizar() {
+    if (!this.eventoSeleccionado || this.cargando || this.enviando) return;
+    this.cargando = true; this.error = ''; this.lista = null;
+    try { this.lista = await this.asistencias.consultar(this.eventoSeleccionado.id); }
+    catch (error) { this.error = this.auth.mensajeError(error); }
+    finally { this.cargando = false; this.detector.markForCheck(); }
+  }
+  async verificarCodigo() {
+    if (!this.eventoSeleccionado || this.cargando || this.enviando) return;
+    const codigo = this.codigoIngreso.trim().toUpperCase();
+    this.error = ''; this.mensaje = '';
+    if (!/^EH-[A-F0-9]{32}$/.test(codigo)) {
+      this.error = 'Copia el código completo del boleto: EH- seguido de 32 letras y números.';
       return;
     }
-
-    // Buscar 
-    const encontrado = this.asistentesRegistrados.find(
-      a => a.codigo.toUpperCase() === this.codigoIngreso.trim().toUpperCase() && a.eventoId === this.eventoSeleccionado.id
-    );
-
-    if (encontrado) {
-      this.resultadoCheckin = {
-        exito: true,
-        mensaje: `Bienvenido @${encontrado.nombre}. Acceso concedido.`
-      };
-    } else {
-      this.resultadoCheckin = {
-        exito: false,
-        mensaje: 'Código no encontrado o no pertenece a este evento.'
-      };
+    if (!confirm('¿Registrar la entrada de este boleto? Solo puede utilizarse una vez.')) return;
+    this.enviando = true;
+    try {
+      const respuesta = await this.asistencias.registrar(this.eventoSeleccionado.id, codigo);
+      this.mensaje = respuesta.mensaje;
+      this.codigoIngreso = '';
+    } catch (error) { this.error = this.auth.mensajeError(error); }
+    finally {
+      // Consultar incluso tras un corte: la entrada pudo haberse guardado.
+      try { this.lista = await this.asistencias.consultar(this.eventoSeleccionado.id); }
+      catch { this.lista = null; this.error += ' No se pudo actualizar la lista; recarga antes de reintentar.'; }
+      this.enviando = false; this.detector.markForCheck();
     }
-
-    this.codigoIngreso = '';
   }
 }

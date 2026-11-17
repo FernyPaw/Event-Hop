@@ -103,6 +103,7 @@
   font-size: 0.9rem;
 }
 .codigo-valor {
+  overflow-wrap: anywhere;
   font-size: 2rem;
   font-weight: bold;
   color: #f26b6b;

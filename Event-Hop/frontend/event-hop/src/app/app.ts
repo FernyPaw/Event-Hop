@@ -14,6 +14,7 @@ import { filter } from 'rxjs/operators';
 export class App {
   protected readonly title = signal('event-hop');
   mostrarNavbar: boolean = true;
+  menuAbierto = window.innerWidth > 760;
 
   constructor(private router: Router) {
     //  mostrar o no navbar

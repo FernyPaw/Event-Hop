@@ -1,6 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
+import { Evento, EventoFormulario, EventosService } from '../../services/eventos.service';
+import { CategoriasService } from '../../services/categorias.service';
+import { ReportesService, ResumenCafe } from '../../services/reportes.service';
 
 @Component({
   selector: 'app-cafe-dashboard',
@@ -9,110 +13,150 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './cafe-dashboard.html',
   styleUrl: './cafe-dashboard.css'
 })
-export class CafeDashboard {
-  // Solo tres pestañas para la gestión interna de la cafetería
+export class CafeDashboard implements OnInit {
+  private auth = inject(AuthService);
+  private eventos = inject(EventosService);
+  private detector = inject(ChangeDetectorRef);
+  private catalogo = inject(CategoriasService);
+  private reportes = inject(ReportesService);
+  resumen: ResumenCafe | null = null;
+  errorResumen = '';
   pestanaActiva: 'panel' | 'gestion' | 'crear' = 'panel';
+  misEventos: Evento[] = [];
+  editandoId: string | null = null;
+  cargando = true;
+  enviando = false;
+  leyendoImagen = false;
+  error = '';
+  mensaje = '';
+  categorias: string[] = [];
+  nuevoEvento = this.formularioVacio();
 
-  cafeteria = {
-    nombre: 'Café El Conejito',
-    verificado: true
-  };
+  get cafeteria() {
+    return { nombre: this.auth.usuario?.nombre ?? '',
+      verificado: this.auth.usuario?.estadoSolicitud === 'aprobada' };
+  }
 
-  estadisticas = {
-    totalEventos: 2,
-    guardadosTotal: 45,
-    inscritosTotal: 30,
-    asistenciasTotales: 22,
-    porcentajeAsistencia: 73
-  };
+  private formularioVacio(): EventoFormulario {
+    return { titulo: '', descripcion: '', categoria: this.categorias.includes('Otro') ? 'Otro' : (this.categorias[0] ?? ''), direccion: '', fecha: '',
+      hora: '', esGratis: true, costo: 0, cupo: 15, imagenUrl: '' };
+  }
 
-  misEventos = [
-    { 
-      id: 1, 
-      titulo: 'Noche de poesía y café', 
-      fecha: '2026-11-20', 
-      hora: '18:00', 
-      esGratis: false,
-      costo: 50, 
-      cupo: 20,
-      guardados: 25,
-      inscritos: 20,
-      asistidos: 15,
-      imagenUrl: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=400' 
-    },
-    { 
-      id: 2, 
-      titulo: 'Taller de filtrado artesanal', 
-      fecha: '2026-11-25', 
-      hora: '16:00', 
-      esGratis: true,
-      costo: 0, 
-      cupo: 10,
-      guardados: 20,
-      inscritos: 10,
-      asistidos: 7,
-      imagenUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=400' 
+  async ngOnInit() {
+    try {
+      this.misEventos = await this.eventos.consultarMios();
+      this.categorias = (await this.catalogo.consultar()).map(c => c.nombre);
+    } catch (error) {
+      this.error = this.auth.mensajeError(error);
+    } finally {
+      this.cargando = false;
+      this.detector.markForCheck();
     }
-  ];
+    await this.actualizarResumen();
+  }
 
-  nuevoEvento = {
-    titulo: '',
-    descripcion: '',
-    fecha: '',
-    hora: '',
-    esGratis: false,
-    costo: 0,
-    cupo: 15,
-    imagenUrl: ''
-  };
+  async actualizarResumen() {
+    this.resumen = null; this.errorResumen = '';
+    try { this.resumen = await this.reportes.resumenCafe(); }
+    catch { this.errorResumen = 'No se pudieron cargar los indicadores. Puedes reintentarlo.'; }
+    finally { this.detector.markForCheck(); }
+  }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.nuevoEvento.imagenUrl = reader.result as string;
-      };
-      reader.readAsDataURL(file);
+  prepararNuevo() {
+    this.editandoId = null;
+    this.nuevoEvento = this.formularioVacio();
+    this.error = '';
+    this.mensaje = '';
+    this.pestanaActiva = 'crear';
+  }
+
+  editarEvento(evento: Evento) {
+    this.editandoId = evento.id;
+    this.nuevoEvento = { titulo: evento.titulo, descripcion: evento.descripcion,
+      categoria: evento.categoria, direccion: evento.direccion, fecha: evento.fecha,
+      hora: evento.hora, esGratis: evento.esGratis, costo: evento.costo,
+      cupo: evento.cupo, imagenUrl: evento.imagenUrl };
+    this.error = '';
+    this.mensaje = '';
+    this.pestanaActiva = 'crear';
+  }
+
+  onFileSelected(event: Event) {
+    const entrada = event.target as HTMLInputElement;
+    const archivo = entrada.files?.[0];
+    if (!archivo) return;
+    this.error = '';
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(archivo.type) || archivo.size > 1048576) {
+      this.error = 'Selecciona una imagen PNG, JPEG o WebP de máximo 1 MB.';
+      entrada.value = '';
+      return;
+    }
+    const lector = new FileReader();
+    this.leyendoImagen = true;
+    lector.onload = () => {
+      this.nuevoEvento.imagenUrl = lector.result as string;
+      this.leyendoImagen = false;
+      this.detector.markForCheck();
+    };
+    lector.onerror = () => {
+      this.error = 'No se pudo leer la imagen.';
+      this.leyendoImagen = false;
+      this.detector.markForCheck();
+    };
+    lector.readAsDataURL(archivo);
+  }
+
+  async crearEvento() {
+    if (this.enviando || this.leyendoImagen || this.cargando) return;
+    this.error = '';
+    this.mensaje = '';
+    const datos = { ...this.nuevoEvento, costo: this.nuevoEvento.esGratis ? 0 : Number(this.nuevoEvento.costo),
+      cupo: Number(this.nuevoEvento.cupo) };
+    if (datos.titulo.trim().length < 3 || !datos.descripcion.trim() || !datos.direccion.trim() ||
+        !datos.fecha || !datos.hora || !Number.isInteger(datos.cupo) || datos.cupo < 1 || datos.cupo > 10000 ||
+        !Number.isFinite(datos.costo) || datos.costo > 100000 || (!datos.esGratis && datos.costo <= 0)) {
+      this.error = 'Completa los campos; utiliza un cupo entero de 1 a 10000 y un costo positivo para eventos de paga.';
+      return;
+    }
+    this.enviando = true;
+    try {
+      const editando = this.editandoId;
+      if (editando) await this.eventos.editar(editando, datos);
+      else await this.eventos.crear(datos);
+      // La escritura ya terminó. No se debe repetir si falla la consulta posterior.
+      this.editandoId = null;
+      this.nuevoEvento = this.formularioVacio();
+      this.pestanaActiva = 'gestion';
+      this.mensaje = editando ? 'Evento actualizado correctamente.' : 'Evento creado correctamente.';
+      await this.actualizarResumen();
+      try {
+        this.misEventos = await this.eventos.consultarMios();
+      } catch {
+        this.error = 'El evento se guardó, pero no se pudo actualizar la lista. Recarga la página.';
+      }
+    } catch (error) {
+      this.error = this.auth.mensajeError(error);
+    } finally {
+      this.enviando = false;
+      this.detector.markForCheck();
     }
   }
 
-  crearEvento() {
-    if (!this.cafeteria.verificado) {
-      alert('Tu cuenta aún no ha sido aprobada por la administración.');
-      return;
-    }
-
-    if (!this.nuevoEvento.titulo || !this.nuevoEvento.fecha || !this.nuevoEvento.hora) {
-      alert('Por favor completa los campos obligatorios.');
-      return;
-    }
-
-    this.misEventos.push({
-      id: this.misEventos.length + 1,
-      titulo: this.nuevoEvento.titulo,
-      fecha: this.nuevoEvento.fecha,
-      hora: this.nuevoEvento.hora,
-      esGratis: this.nuevoEvento.esGratis,
-      costo: this.nuevoEvento.esGratis ? 0 : Number(this.nuevoEvento.costo),
-      cupo: Number(this.nuevoEvento.cupo),
-      guardados: 0,
-      inscritos: 0,
-      asistidos: 0,
-      imagenUrl: this.nuevoEvento.imagenUrl || 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=400'
-    });
-
-    this.estadisticas.totalEventos = this.misEventos.length;
-    alert('Evento creado con éxito');
-    
-    this.nuevoEvento = { titulo: '', descripcion: '', fecha: '', hora: '', esGratis: false, costo: 0, cupo: 15, imagenUrl: '' };
-    this.pestanaActiva = 'gestion';
-  }
-
-  eliminarEvento(id: number) {
-    if (confirm('¿Estás seguro de eliminar este evento?')) {
-      this.misEventos = this.misEventos.filter(e => e.id !== id);
-      this.estadisticas.totalEventos = this.misEventos.length;
+  async eliminarEvento(id: string) {
+    if (this.enviando || !confirm('¿Eliminar este evento definitivamente? Esta acción no se puede deshacer.')) return;
+    this.enviando = true;
+    this.error = '';
+    this.mensaje = '';
+    try {
+      await this.eventos.eliminar(id);
+      this.misEventos = this.misEventos.filter(evento => evento.id !== id);
+      this.mensaje = 'Evento eliminado.';
+      await this.actualizarResumen();
+    } catch (error) {
+      this.error = this.auth.mensajeError(error);
+    } finally {
+      this.enviando = false;
+      this.detector.markForCheck();
     }
   }
 }

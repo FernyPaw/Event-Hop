@@ -1,6 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
+import { Evento, EventosService } from '../../services/eventos.service';
+import { ParticipacionService } from '../../services/participacion.service';
+import { PagosService } from '../../services/pagos.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -9,147 +14,99 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
-export class Home {
+export class Home implements OnInit {
+  private servicio = inject(EventosService);
+  private auth = inject(AuthService);
+  private detector = inject(ChangeDetectorRef);
+  private participacion = inject(ParticipacionService);
+  private pagos = inject(PagosService);
+  private router = inject(Router);
+  guardados: string[] = [];
+  reservados: string[] = [];
+  enviando = false;
+  mensaje = '';
+  get esUsuario() { return this.auth.usuario?.rol === 'usuario'; }
+  eventos: Evento[] = [];
+  eventoSeleccionado: Evento | null = null;
+  cargando = true;
+  error = '';
+  filtroCafeteria = '';
+  filtroDia = '';
+  filtroTipo = '';
+  dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
-  vistaActual: 'explorar' | 'gestion' | 'detalle' = 'explorar';
-
-  // Lista eventos
-  eventos = [
-    {
-      id: 1,
-      categoria: 'Taller',
-      titulo: 'Cata de Cafe',
-      cafeteria: 'Cafeteria El conejito',
-      direccion: 'Av. Principal #123, Centro',
-      dia: 'Sábado',
-      fechaTexto: 'Sábado 15 de Noviembre - 5:00 PM',
-      esGratis: false,
-      precio: '$150 MXN',
-      descripcion: 'Aprende a identificar notas y aromas de granos locales guiado por baristas expertos.',
-      guardado: false
-    },
-    {
-      id: 2,
-      categoria: 'Musica',
-      titulo: 'Noche de sonidos',
-      cafeteria: 'Cafe del Parque',
-      direccion: 'Calle Juárez #45, frente al parque',
-      dia: 'Domingo',
-      fechaTexto: 'Domingo 16 de Noviembre - 7:30 PM',
-      esGratis: true,
-      precio: 'Gratuito',
-      descripcion: 'Disfruta de música acustica en vivo con artistas locales en un ambiente relajado.',
-      guardado: false
-    },
-    {
-      id: 3,
-      categoria: 'Lectura',
-      titulo: 'Tarde de lectura y cafe',
-      cafeteria: 'La Madriguera Cafe',
-      direccion: 'Blvd. Las Flores #890',
-      dia: 'Martes',
-      fechaTexto: 'Martes 18 de Noviembre - 6:00 PM',
-      esGratis: true,
-      precio: 'Gratuito',
-      descripcion: 'Trae tu libro favorito o elige uno de nuestra biblioteca comunitaria para compartir opiniones acompañados de un buen cafe.',
-      guardado: false
-    },
-    {
-      id: 4,
-      categoria: 'Aficion',
-      titulo: 'tarde de Kpop',
-      cafeteria: 'La Madriguera Cafe',
-      direccion: 'Blvd. Las Flores #890',
-      dia: 'Martes',
-      fechaTexto: 'Martes 25 de Noviembre - 4:00 PM',
-      esGratis: true,
-      precio: 'Gratuito',
-      descripcion: 'Disfruta con mas fans del kpop de musica y actividades acompañados de un buen cafe.',
-      guardado: false
-    }
-  ];
-
-  //estadisticas
-  estadisticasCafeteria = {
-    eventosActivos: 2,
-    enCurso: 1,
-    terminados: 5,
-    interesadosGuardados: 34,
-    asistenciasConfirmadas: 28,
-    porcentajeAsistencia: 82
-  };
-
-  //eventos propios
-  misEventosCafeteria = [
-    {
-      id: 1,
-      titulo: 'Cata de Café',
-      estado: 'Activo',
-      fecha: 'Sábado 15 de Noviembre',
-      interesados: 15,
-      asistidos: 12
-    },
-    {
-      id: 2,
-      titulo: 'Tarde de lectura y café',
-      estado: 'En curso',
-      fecha: 'Martes 18 de Noviembre',
-      interesados: 19,
-      asistidos: 16
-    }
-  ];
-
-  eventoSeleccionado: any = null;
-
-  // Variables busqueda
-  filtroCafeteria: string = '';
-  filtroDia: string = '';
-  filtroTipo: string = '';
-
-  // cafeterias
-  get listaCafeterias() {
-    const cafeteriasUnicas = this.eventos.map(evento => evento.cafeteria);
-    return [...new Set(cafeteriasUnicas)]; 
-  }
-
-  // Filtro
-  get eventosFiltrados() {
-    return this.eventos.filter(evento => {
-      const coincideCafeteria = this.filtroCafeteria === '' || evento.cafeteria === this.filtroCafeteria;
-      const coincideDia = this.filtroDia === '' || evento.dia === this.filtroDia;
-      
-      let coincideTipo = true;
-      if (this.filtroTipo === 'gratis') {
-        coincideTipo = evento.esGratis === true;
-      } else if (this.filtroTipo === 'paga') {
-        coincideTipo = evento.esGratis === false;
+  async ngOnInit() {
+    try {
+      this.eventos = await this.servicio.consultar();
+      if (this.esUsuario) {
+        const [favoritos, boletos] = await Promise.all([this.participacion.favoritos(), this.participacion.boletos()]);
+        this.guardados = favoritos.map(e => e.id);
+        this.reservados = boletos.filter(b => b.estado === 'confirmada').map(b => b.eventoId);
       }
-
-      return coincideCafeteria && coincideDia && coincideTipo;
-    });
+    } catch (error) {
+      this.error = this.auth.mensajeError(error);
+    } finally {
+      this.cargando = false;
+      this.detector.markForCheck();
+    }
   }
 
-  //cambiar de vista
-  verDetalle(evento: any) {
-    this.eventoSeleccionado = evento;
-    this.vistaActual = 'detalle';
+  get listaCafeterias() {
+    return [...new Set(this.eventos.map(evento => evento.cafeteria))];
   }
 
-  cerrarDetalle() {
-    this.eventoSeleccionado = null;
-    this.vistaActual = 'explorar';
+  diaEvento(evento: Evento) {
+    return this.dias[new Date(evento.fecha + 'T12:00:00').getDay()];
   }
 
-  irAGestion() {
-    this.vistaActual = 'gestion';
+  get eventosFiltrados() {
+    return this.eventos.filter(evento =>
+      (!this.filtroCafeteria || evento.cafeteria === this.filtroCafeteria) &&
+      (!this.filtroDia || this.diaEvento(evento) === this.filtroDia) &&
+      (!this.filtroTipo || (this.filtroTipo === 'gratis' ? evento.esGratis : !evento.esGratis)));
   }
 
-  irAExplorar() {
-    this.vistaActual = 'explorar';
-    this.eventoSeleccionado = null;
+  verDetalle(evento: Evento) { this.eventoSeleccionado = evento; this.error = ''; this.mensaje = ''; }
+  cerrarDetalle() { this.eventoSeleccionado = null; }
+
+  async guardar(evento: Evento) {
+    if (this.enviando) return;
+    this.enviando = true; this.error = ''; this.mensaje = '';
+    try {
+      if (this.guardados.includes(evento.id)) {
+        await this.participacion.quitar(evento.id);
+        this.guardados = this.guardados.filter(id => id !== evento.id);
+        this.mensaje = 'Evento quitado de guardados.';
+      } else {
+        await this.participacion.guardar(evento.id);
+        this.guardados = [...this.guardados, evento.id];
+        this.mensaje = 'Evento guardado. Puedes verlo en Mis eventos.';
+      }
+    } catch (error) { this.error = this.auth.mensajeError(error); }
+    finally { this.enviando = false; this.detector.markForCheck(); }
   }
 
-  alternarGuardar(evento: any) {
-    evento.guardado = !evento.guardado;
+  async reservar(evento: Evento) {
+    if (this.enviando) return;
+    if (!evento.esGratis) { await this.comprar(evento); return; }
+    this.enviando = true; this.error = ''; this.mensaje = '';
+    try {
+      const respuesta = await this.participacion.reservar(evento.id);
+      this.reservados = [...this.reservados.filter(id => id !== evento.id), evento.id];
+      this.mensaje = respuesta.mensaje;
+      try {
+        this.eventos = await this.servicio.consultar();
+        this.eventoSeleccionado = this.eventos.find(e => e.id === evento.id) ?? null;
+      } catch { this.mensaje += ' Recarga para actualizar los lugares disponibles.'; }
+    } catch (error) { this.error = this.auth.mensajeError(error); }
+    finally { this.enviando = false; this.detector.markForCheck(); }
+  }
+  async comprar(evento: Evento, proveedor: 'paypal' | 'stripe' = 'paypal') {
+    this.enviando = true; this.error = ''; this.mensaje = '';
+    try {
+      const pago = proveedor === 'stripe' ? await this.pagos.iniciarStripe(evento.id) : await this.pagos.iniciar(evento.id);
+      await this.router.navigate(['/usuario/pagos'], { queryParams: { evento: evento.id, pago: pago.pagoId } });
+    } catch (error) { this.error = this.auth.mensajeError(error); }
+    finally { this.enviando = false; this.detector.markForCheck(); }
   }
 }

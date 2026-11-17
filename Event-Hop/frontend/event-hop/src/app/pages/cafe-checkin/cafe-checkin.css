@@ -1,3 +1,7 @@
+.asistente { border: 1px solid #d8e5e4; border-radius: 10px; padding: 14px; margin-top: 12px; text-align: left; }
+.asistente h3 { margin: 0; color: #248a91; }
+.folio { overflow-wrap: anywhere; font-family: monospace; }
+button:disabled { opacity: .6; cursor: wait; }
 .cafe-container {
   max-width: 700px;
   margin: 40px auto;

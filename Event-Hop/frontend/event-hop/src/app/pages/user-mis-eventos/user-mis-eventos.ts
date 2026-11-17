@@ -1,41 +1,57 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { PagosService } from '../../services/pagos.service';
+import { AuthService } from '../../services/auth.service';
+import { Evento } from '../../services/eventos.service';
+import { ParticipacionService } from '../../services/participacion.service';
 
 @Component({
   selector: 'app-user-mis-eventos',
-  standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './user-mis-eventos.html',
   styleUrl: './user-mis-eventos.css'
 })
-export class UserMisEventos {
-  // datos
-  misEventosGuardados = [
-    { 
-      id: 1, 
-      titulo: 'Noche de poesía y café', 
-      fecha: '2026-11-20', 
-      hora: '18:00', 
-      costo: 50, 
-      imagenUrl: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=400' 
-    },
-    { 
-      id: 2, 
-      titulo: 'Taller de filtrado artesanal', 
-      fecha: '2026-11-25', 
-      hora: '16:00', 
-      costo: 0, 
-      imagenUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=400' 
-    }
-  ];
+export class UserMisEventos implements OnInit {
+  private servicio = inject(ParticipacionService);
+  private auth = inject(AuthService);
+  private detector = inject(ChangeDetectorRef);
+  private pagos = inject(PagosService);
+  private router = inject(Router);
+  misEventosGuardados: Evento[] = [];
+  cargando = true;
+  enviando = false;
+  error = '';
+  mensaje = '';
 
-  removerDeGuardados(id: number) {
-    this.misEventosGuardados = this.misEventosGuardados.filter(e => e.id !== id);
+  async ngOnInit() {
+    try { this.misEventosGuardados = await this.servicio.favoritos(); }
+    catch (error) { this.error = this.auth.mensajeError(error); }
+    finally { this.cargando = false; this.detector.markForCheck(); }
   }
-
-  comprarBoleto(evento: any) {
-    alert(`Has adquirido/apartado tu lugar para: ${evento.titulo}. Ahora aparecerá en "Mis boletos".`);
-    // comprar o apartar
-    this.removerDeGuardados(evento.id);
+  async removerDeGuardados(id: string) {
+    if (this.enviando) return;
+    this.enviando = true; this.error = ''; this.mensaje = '';
+    try {
+      await this.servicio.quitar(id);
+      this.misEventosGuardados = this.misEventosGuardados.filter(e => e.id !== id);
+      this.mensaje = 'Evento quitado de guardados.';
+    } catch (error) { this.error = this.auth.mensajeError(error); }
+    finally { this.enviando = false; this.detector.markForCheck(); }
+  }
+  async comprarBoleto(evento: Evento) {
+    if (this.enviando) return;
+    this.enviando = true; this.error = ''; this.mensaje = '';
+    try {
+      if (!evento.esGratis) {
+        const pago = await this.pagos.iniciar(evento.id);
+        await this.router.navigate(['/usuario/pagos'], { queryParams: { evento: evento.id, pago: pago.pagoId } });
+        return;
+      }
+      this.mensaje = (await this.servicio.reservar(evento.id)).mensaje;
+      try { this.misEventosGuardados = await this.servicio.favoritos(); }
+      catch { this.mensaje += ' Recarga para actualizar el cupo.'; }
+    } catch (error) { this.error = this.auth.mensajeError(error); }
+    finally { this.enviando = false; this.detector.markForCheck(); }
   }
 }

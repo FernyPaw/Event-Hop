@@ -1,0 +1,23 @@
+<section class="perfil-card" aria-labelledby="titulo-perfil">
+  <h2 id="titulo-perfil">Mi perfil</h2>
+  <p *ngIf="ocupado" role="status">Cargando o guardando perfil…</p>
+  <p *ngIf="error" class="error" role="alert">{{ error }}</p>
+  <p *ngIf="mensaje" role="status">{{ mensaje }}</p>
+  <button *ngIf="!usuario && !ocupado" type="button" (click)="cargar()">Reintentar</button>
+  <ng-container *ngIf="usuario">
+    <div class="avatar" aria-hidden="true">{{ iniciales }}</div>
+    <p>{{ usuario.correo }}</p>
+    <p>Tipo de cuenta: {{ usuario.rol === 'cafeteria' ? 'Cafetería' : usuario.rol === 'admin' ? 'Administrador' : 'Usuario' }}</p>
+    <ng-container *ngIf="usuario.rol === 'cafeteria'">
+      <p>RFC: {{ usuario.rfc }}</p>
+      <p>Solicitud: {{ usuario.estadoSolicitud }}</p>
+    </ng-container>
+    <form (ngSubmit)="guardar()" #formulario="ngForm">
+      <label for="nombre-perfil">{{ usuario.rol === 'cafeteria' ? 'Nombre del establecimiento' : 'Nombre' }}</label>
+      <input id="nombre-perfil" name="nombre" [(ngModel)]="nombre"
+        required minlength="2" maxlength="100" [disabled]="ocupado" autocomplete="name">
+      <p class="nota">Puedes editar tu nombre. Los demás datos de la cuenta no son modificables.</p>
+      <button type="submit" [disabled]="ocupado || formulario.invalid">Guardar cambios</button>
+    </form>
+  </ng-container>
+</section>

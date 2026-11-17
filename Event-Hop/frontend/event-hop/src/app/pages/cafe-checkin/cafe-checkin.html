@@ -1,33 +1,41 @@
 <div class="cafe-container">
- 
+  <p *ngIf="cargando" role="status">Cargando…</p>
+  <p *ngIf="error" role="alert">{{ error }}</p>
+  <p *ngIf="mensaje" role="status">{{ mensaje }}</p>
   <div class="form-card" *ngIf="!eventoSeleccionado">
-    <h2>Selecciona el Evento</h2>
-    <p class="subtitle">Elige el evento para comenzar el registro de entrada de los asistentes</p>
-
+    <h2>Asistentes y control de entrada</h2>
+    <p class="subtitle">Selecciona uno de tus eventos.</p>
+    <p *ngIf="!cargando && !error && misEventos.length === 0">Todavía no tienes eventos.</p>
     <div class="eventos-checkin-grid">
-      <div class="evento-select-card" *ngFor="let ev of misEventos" (click)="seleccionarEvento(ev)">
+      <div class="evento-select-card" *ngFor="let ev of misEventos">
         <h3>{{ ev.titulo }}</h3>
         <p>{{ ev.fecha }} a las {{ ev.hora }} hrs</p>
-        <button type="button" class="btn-select">Seleccionar Evento</button>
+        <button type="button" class="btn-select" [disabled]="cargando" (click)="seleccionarEvento(ev)">Ver asistentes</button>
       </div>
     </div>
   </div>
-
-
-  <div class="form-card checkin-card" *ngIf="eventoSeleccionado">
-    <button type="button" class="btn-back" (click)="regresarASeccionEventos()">Regresar a eventos</button>
-    
-    <h2>Control de Acceso</h2>
-    <p class="evento-activo-titulo">{{ eventoSeleccionado.titulo }}</p>
-    <p class="subtitle">Ingresa el código del boleto del cliente para validar su acceso</p>
-    
-    <div class="form-group">
-      <input type="text" [(ngModel)]="codigoIngreso" placeholder="Ej. EH-101" (keyup.enter)="verificarCodigo()">
-    </div>
-    <button type="button" class="btn-primary" (click)="verificarCodigo()">Verificar Código</button>
-
-    <div class="resultado-box" *ngIf="resultadoCheckin" [class.success]="resultadoCheckin.exito" [class.error]="!resultadoCheckin.exito">
-      <p>{{ resultadoCheckin.mensaje }}</p>
-    </div>
+  <div class="form-card" *ngIf="eventoSeleccionado">
+    <button type="button" [disabled]="cargando || enviando" (click)="regresarASeccionEventos()">Regresar a eventos</button>
+    <h2>{{ eventoSeleccionado.titulo }}</h2>
+    <p class="subtitle">{{ eventoSeleccionado.fecha }} · {{ eventoSeleccionado.hora }} hrs</p>
+    <p>La entrada se registra únicamente el día del evento. Un código solo puede utilizarse una vez.</p>
+    <form (ngSubmit)="verificarCodigo()">
+      <label for="codigo">Código completo del boleto</label>
+      <div class="form-group">
+        <input id="codigo" name="codigo" [(ngModel)]="codigoIngreso" maxlength="50" placeholder="EH-…" autocomplete="off" required>
+      </div>
+      <button type="submit" class="btn-primary" [disabled]="cargando || enviando">{{ enviando ? 'Registrando…' : 'Validar y registrar entrada' }}</button>
+    </form>
+    <button type="button" [disabled]="cargando || enviando" (click)="actualizar()">Actualizar asistentes</button>
+    <ng-container *ngIf="lista">
+      <p><strong>Reservas confirmadas:</strong> {{ lista.confirmadas }} · <strong>Entradas registradas:</strong> {{ lista.entradas }}</p>
+      <p *ngIf="lista.asistentes.length === 0">Este evento todavía no tiene reservas.</p>
+      <div class="asistente" *ngFor="let a of lista.asistentes">
+        <h3>{{ a.nombre }}</h3>
+        <p>Reserva: {{ a.estado }} · Pago: {{ a.pago }}</p>
+        <p class="folio">{{ a.codigo }}</p>
+        <p>{{ a.fechaEntrada ? 'Entrada registrada' : 'Sin entrada registrada' }}<span *ngIf="a.fechaEntrada">: {{ a.fechaEntrada | date:'dd/MM/yyyy HH:mm' }} (hora de tu equipo)</span></p>
+      </div>
+    </ng-container>
   </div>
 </div>

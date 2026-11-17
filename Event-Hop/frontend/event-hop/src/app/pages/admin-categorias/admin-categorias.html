@@ -1,0 +1,24 @@
+<section>
+  <h2>Categorías de eventos</h2>
+  <p>Edita la descripción y disponibilidad de las categorías. Desactivarlas conserva su historial.</p>
+  <p *ngIf="error" role="alert" class="error">{{ error }}</p>
+  <p *ngIf="mensaje" role="status">{{ mensaje }}</p>
+  <p *ngIf="ocupado" role="status">Procesando…</p>
+  <button type="button" (click)="cargar()" [disabled]="ocupado">Actualizar</button>
+  <form (ngSubmit)="guardar()" #formulario="ngForm">
+    <h3>{{ id ? 'Editar categoría' : 'Nueva categoría' }}</h3>
+    <label for="categoria-nombre">Nombre</label>
+    <input id="categoria-nombre" [(ngModel)]="nombre" name="nombre" required minlength="2" maxlength="50" [readOnly]="!!id" [disabled]="ocupado">
+    <label for="categoria-descripcion">Descripción</label>
+    <textarea id="categoria-descripcion" [(ngModel)]="descripcion" name="descripcion" maxlength="300" [disabled]="ocupado"></textarea>
+    <label><input type="checkbox" [(ngModel)]="activa" name="activa" [disabled]="ocupado"> Disponible para eventos nuevos</label>
+    <button type="submit" [disabled]="ocupado || formulario.invalid">Guardar categoría</button>
+    <button type="button" (click)="limpiar()" [disabled]="ocupado">Cancelar / nueva</button>
+  </form>
+  <article *ngFor="let c of lista">
+    <h3>{{ c.nombre }} — {{ c.activa ? 'Activa' : 'Desactivada' }}</h3>
+    <p>{{ c.descripcion }}</p>
+    <button type="button" (click)="editar(c)" [disabled]="ocupado">Editar</button>
+    <button type="button" (click)="quitar(c)" [disabled]="ocupado || !c.activa">Desactivar</button>
+  </article>
+</section>

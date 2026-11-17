@@ -1,0 +1,26 @@
+<section class="reportes">
+  <h1>Reportes</h1>
+  <p>{{ esAdmin ? 'Resumen de la plataforma.' : 'Resumen de tus eventos.' }}</p>
+  <form class="filtros" (ngSubmit)="consultar()">
+    <label>Reporte<select [(ngModel)]="tipo" name="tipo" [disabled]="cargando"><option *ngFor="let t of tipos" [value]="t.id">{{ t.nombre }}</option></select></label>
+    <label>Fecha del evento desde<input type="date" name="desde" [(ngModel)]="desde" [disabled]="cargando"></label>
+    <label>Hasta<input type="date" name="hasta" [(ngModel)]="hasta" [disabled]="cargando"></label>
+    <label *ngIf="esAdmin">Cafetería<select name="cafeteria" [(ngModel)]="cafeteriaId" [disabled]="cargando"><option value="">Todas las cafeterías</option><option *ngFor="let c of cafeterias" [value]="c.id">{{ c.nombre }}</option></select></label>
+    <div class="acciones"><button type="submit" [disabled]="cargando">{{ cargando ? 'Consultando…' : 'Consultar reporte' }}</button><button type="button" class="secundario" (click)="limpiar()" [disabled]="cargando">Limpiar filtros</button></div>
+  </form>
+  <p class="nota">Filtra por fecha del evento. Sin fechas se muestra todo el historial.</p>
+  <p *ngIf="error" class="error" role="alert">{{ error }}</p>
+  <p *ngIf="errorCatalogo" class="error" role="alert">{{ errorCatalogo }}</p>
+  <p *ngIf="cargando" role="status">Cargando reporte…</p>
+  <ng-container *ngIf="reporte as r">
+    <div class="cabecera"><div><h2>{{ titulo }}</h2><p>Generado: {{ r.generadoUtc | date:'dd/MM/yyyy HH:mm' }} (hora de tu equipo)</p><p>Rango: {{ r.desde || 'Sin inicio' }} — {{ r.hasta || 'Sin fin' }}</p></div></div>
+    <div class="indicadores"><article *ngFor="let indicador of r.indicadores | keyvalue"><span>{{ indicador.key }}</span><strong>{{ indicador.value }}</strong></article></div>
+    <p *ngIf="r.tipo === 'pagos'" class="nota">Solo dinero de prueba: PayPal Sandbox y Stripe. Neto = cobrado − reembolsos confirmados, sin comisiones. Los pagos sin resolver no se incluyen en lo cobrado.</p>
+    <p *ngIf="r.tipo === 'asistencia'" class="nota">Asistencia: porcentaje de reservas confirmadas con entrada registrada.</p>
+    <p *ngIf="r.tipo === 'eventos'" class="nota">La ocupación incluye reservas y retenciones vigentes. Guardados: favoritos actuales.</p>
+    <p *ngIf="r.tipo === 'resenas'" class="nota">Promedio de todas las reseñas consultadas. Los eventos sin reseñas no tienen calificación.</p>
+    <p *ngIf="!r.filas.length" role="status">No hay eventos que coincidan con estos filtros.</p>
+    <div class="tabla" *ngIf="r.filas.length"><table><caption>{{ titulo }}: {{ r.filas.length }} eventos</caption><thead><tr><th scope="col" *ngFor="let columna of r.columnas">{{ columna }}</th></tr></thead><tbody><tr *ngFor="let fila of filas"><td *ngFor="let valor of fila">{{ valor }}</td></tr></tbody></table></div>
+    <div class="paginacion" *ngIf="r.filas.length"><button class="secundario" type="button" (click)="pagina = pagina - 1" [disabled]="pagina <= 1">Anterior</button><span>Página {{ pagina }} de {{ paginas }}</span><button class="secundario" type="button" (click)="pagina = pagina + 1" [disabled]="pagina >= paginas">Siguiente</button></div>
+  </ng-container>
+</section>

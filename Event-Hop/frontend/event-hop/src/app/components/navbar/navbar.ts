@@ -1,57 +1,36 @@
-import { Component } from '@angular/core';
+import { Component, inject, output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router'; // <--- 1. Importar RouterLinkActive
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive], // <--- 2. Añadirlo aquí
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
-export class Navbar {
-  // menu 
-  menuAbierto: boolean = true;
-
-  // sesion
-  estaLogueado: boolean = true;
-
-  // Rol 
-  rolActual: 'usuario' | 'cafeteria' | 'admin' = 'usuario';
-
-  // Datos
-  perfil = {
-    nombre: 'María González',
-    iniciales: 'MG',
-    subtitulo: 'Exploradora de Café'
-  };
-
-  constructor(private router: Router) {} 
-
-  alternarMenu() {
-    this.menuAbierto = !this.menuAbierto;
+export class Navbar implements OnInit {
+  private auth = inject(AuthService);
+  private router = inject(Router);
+  menuAbierto = true;
+  menuCambio = output<boolean>();
+  ngOnInit() {
+    this.menuAbierto = window.innerWidth > 760;
+    this.menuCambio.emit(this.menuAbierto);
   }
-
-  // menu rol
-  cambiarRol(nuevoRol: 'usuario' | 'cafeteria' | 'admin') {
-    this.rolActual = nuevoRol;
-    this.estaLogueado = true;
-
-    if (nuevoRol === 'usuario') {
-      this.perfil = { nombre: 'Maria Gomez', iniciales: 'MG', subtitulo: 'Usuario' };
-    } else if (nuevoRol === 'cafeteria') {
-      this.perfil = { nombre: 'Cafetería El Conejito', iniciales: 'EC', subtitulo: 'Cafetería Verificada' };
-    } else if (nuevoRol === 'admin') {
-      this.perfil = { nombre: 'Admin ', iniciales: 'AD', subtitulo: 'Administrador' };
-    }
+  get estaLogueado() { return !!this.auth.token; }
+  get rolActual() { return this.auth.usuario?.rol ?? 'usuario'; }
+  get perfil() {
+    const nombre = this.auth.usuario?.nombre ?? '';
+    const iniciales = nombre.trim().split(/\s+/).slice(0, 2).map(parte => parte[0]).join('').toUpperCase();
+    return { nombre, iniciales, subtitulo: this.rolActual };
   }
-
+  alternarMenu() { this.menuAbierto = !this.menuAbierto; this.menuCambio.emit(this.menuAbierto); }
+  cerrarMenuMovil() { if (window.innerWidth <= 760 && this.menuAbierto) this.alternarMenu(); }
   cerrarSesion() {
-    this.estaLogueado = false;
-    this.router.navigate(['/login']); 
-  }
-
-  iniciarSesionDemo() {
+    this.auth.cerrarSesion();
     this.router.navigate(['/login']);
   }
+  iniciarSesionDemo() { this.router.navigate(['/login']); }
 }

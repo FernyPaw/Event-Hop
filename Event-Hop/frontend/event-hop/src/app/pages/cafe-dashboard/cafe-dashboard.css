@@ -76,6 +76,7 @@
 
 .cafe-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 25px;
 }
@@ -137,6 +138,8 @@
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   justify-content: space-between;
   align-items: center;
   border: 1.5px solid #eeeeee;
@@ -203,7 +206,7 @@ label {
   font-size: 0.9rem;
 }
 
-input, textarea {
+input, textarea, select {
   width: 100%;
   padding: 10px 12px;
   border: 1.5px solid #dddddd;
@@ -213,7 +216,7 @@ input, textarea {
   background-color: #fafafa;
 }
 
-input:focus, textarea:focus {
+input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: #20b2aa;
   background-color: #ffffff;

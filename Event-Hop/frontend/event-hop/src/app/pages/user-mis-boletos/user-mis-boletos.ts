@@ -1,34 +1,42 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { Boleto, ParticipacionService } from '../../services/participacion.service';
 
 @Component({
   selector: 'app-user-mis-boletos',
-  standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './user-mis-boletos.html',
   styleUrl: './user-mis-boletos.css'
 })
-export class UserMisBoletos {
-  misBoletos = [
-    { 
-      id: 1, 
-      titulo: 'Cata de Café y Libros', 
-      fecha: '2026-11-18', 
-      hora: '17:00', 
-      cafeteria: 'Café El Conejito',
-      codigo: 'EH-101',
-      estado: 'Apartado / Pagado',
-      imagenUrl: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=400' 
-    }
-  ];
+export class UserMisBoletos implements OnInit {
+  private servicio = inject(ParticipacionService);
+  private auth = inject(AuthService);
+  private detector = inject(ChangeDetectorRef);
+  misBoletos: Boleto[] = [];
+  boletoSeleccionado: Boleto | null = null;
+  cargando = true;
+  enviando = false;
+  error = '';
+  mensaje = '';
 
-  boletoSeleccionado: any = null;
-
-  verDetalleBoleto(boleto: any) {
-    this.boletoSeleccionado = boleto;
+  async ngOnInit() {
+    try { this.misBoletos = await this.servicio.boletos(); }
+    catch (error) { this.error = this.auth.mensajeError(error); }
+    finally { this.cargando = false; this.detector.markForCheck(); }
   }
-
-  cerrarDetalle() {
-    this.boletoSeleccionado = null;
+  verDetalleBoleto(boleto: Boleto) { this.boletoSeleccionado = boleto; this.error = ''; this.mensaje = ''; }
+  cerrarDetalle() { this.boletoSeleccionado = null; }
+  async cancelar(boleto: Boleto) {
+    if (this.enviando || !confirm('¿Cancelar tu reserva y liberar el lugar?')) return;
+    this.enviando = true; this.error = ''; this.mensaje = '';
+    try {
+      await this.servicio.cancelar(boleto.eventoId);
+      this.misBoletos = this.misBoletos.map(b => b.eventoId === boleto.eventoId ? { ...b, estado: 'cancelada' } : b);
+      this.boletoSeleccionado = this.misBoletos.find(b => b.eventoId === boleto.eventoId) ?? null;
+      this.mensaje = 'Reserva cancelada. El lugar volvió a estar disponible.';
+    } catch (error) { this.error = this.auth.mensajeError(error); }
+    finally { this.enviando = false; this.detector.markForCheck(); }
   }
 }

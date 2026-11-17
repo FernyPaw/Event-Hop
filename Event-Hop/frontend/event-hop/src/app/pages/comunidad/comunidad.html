@@ -1,0 +1,53 @@
+<section>
+  <h2>Reseñas y avisos</h2>
+  <p>Consulta reseñas y avisos de tus eventos.</p>
+  <p *ngIf="error" role="alert" class="error">{{ error }}</p>
+  <p *ngIf="mensaje" role="status">{{ mensaje }}</p>
+  <p *ngIf="ocupado" role="status">Procesando…</p>
+  <button type="button" (click)="cargarEventos()" [disabled]="ocupado" title="Vuelve a consultar los eventos disponibles">Actualizar lista de eventos</button>
+  <label for="comunidad-evento">Evento</label>
+  <select id="comunidad-evento" [(ngModel)]="eventoId" (ngModelChange)="seleccionar()" [disabled]="ocupado">
+    <option value="">Selecciona un evento</option>
+    <option *ngFor="let e of eventos" [value]="e.id">{{ e.titulo }} — {{ e.fecha }}</option>
+  </select>
+  <button type="button" (click)="seleccionar()" [disabled]="ocupado || !eventoId" title="Consulta los avisos y las reseñas del evento seleccionado">Actualizar reseñas y avisos</button>
+  <ng-container *ngIf="datos">
+    <h3>{{ datos.titulo }}</h3>
+    <h3>Avisos</h3>
+    <p *ngIf="!datos.puedeVerAvisos">Los avisos solo están disponibles para asistentes con reserva confirmada.</p>
+    <p *ngIf="datos.puedeVerAvisos && !datos.avisos.length">No hay avisos publicados.</p>
+    <article *ngFor="let a of datos.avisos">
+      <h4>{{ a.titulo }}</h4><p class="texto">{{ a.contenido }}</p>
+      <small>Actualizado: {{ a.fechaActualizacion | date:'dd/MM/yyyy HH:mm' }} (hora de tu equipo)</small>
+      <div *ngIf="datos.puedeAvisar">
+        <button type="button" (click)="editarAviso(a)" [disabled]="ocupado">Editar aviso</button>
+        <button type="button" (click)="borrarAviso(a)" [disabled]="ocupado">Eliminar aviso</button>
+      </div>
+    </article>
+    <form *ngIf="datos.puedeAvisar" (ngSubmit)="guardarAviso()" #avisoForm="ngForm">
+      <h4>{{ avisoId ? 'Editar aviso' : 'Nuevo aviso' }}</h4>
+      <label for="aviso-titulo">Título</label><input id="aviso-titulo" name="titulo" [(ngModel)]="titulo" required minlength="3" maxlength="100" [disabled]="ocupado">
+      <label for="aviso-contenido">Contenido</label><textarea id="aviso-contenido" name="contenido" [(ngModel)]="contenido" required minlength="3" maxlength="2000" [disabled]="ocupado"></textarea>
+      <button type="submit" [disabled]="ocupado || avisoForm.invalid">Guardar aviso</button>
+      <button type="button" (click)="limpiarAviso()" [disabled]="ocupado">Cancelar / nuevo</button>
+    </form>
+    <h3>Reseñas ({{ datos.resenas.length }})</h3>
+    <p *ngIf="!datos.resenas.length">Todavía no hay reseñas.</p>
+    <article *ngFor="let r of datos.resenas">
+      <h4>{{ r.autor }} — {{ r.calificacion }}/5 {{ r.esMia ? '(Tu reseña)' : '' }}</h4>
+      <p class="texto">{{ r.comentario }}</p>
+      <small>{{ r.fechaActualizacion | date:'dd/MM/yyyy HH:mm' }} (hora de tu equipo)</small>
+      <button *ngIf="r.esMia" type="button" (click)="borrarResena()" [disabled]="ocupado">Eliminar mi reseña</button>
+    </article>
+    <p *ngIf="!esCafe && !datos.puedeResenar">Solo puedes escribir una reseña después de registrar tu entrada, con boleto válido.</p>
+    <form *ngIf="datos.puedeResenar" (ngSubmit)="guardarResena()" #resenaForm="ngForm">
+      <h4>{{ tengoResena ? 'Editar mi reseña' : 'Escribir reseña' }}</h4>
+      <label for="calificacion">Calificación</label>
+      <select id="calificacion" [(ngModel)]="calificacion" name="calificacion" [disabled]="ocupado">
+        <option *ngFor="let n of [1,2,3,4,5]" [ngValue]="n">{{ n }}/5</option>
+      </select>
+      <label for="comentario">Comentario</label><textarea id="comentario" name="comentario" [(ngModel)]="comentario" required minlength="3" maxlength="1000" [disabled]="ocupado"></textarea>
+      <button type="submit" [disabled]="ocupado || resenaForm.invalid">Guardar mi reseña</button>
+    </form>
+  </ng-container>
+</section>

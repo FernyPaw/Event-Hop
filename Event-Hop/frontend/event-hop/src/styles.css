@@ -11,4 +11,13 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   color: #333333;
+  line-height: 1.45;
 }
+button, input, select, textarea { font-family: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { min-height: 36px; }
+:focus-visible { outline: 3px solid #145d82; outline-offset: 3px; }
+img { max-width: 100%; }
+input, select, textarea { max-width: 100%; }
+[role=alert] { color: #a21825; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }

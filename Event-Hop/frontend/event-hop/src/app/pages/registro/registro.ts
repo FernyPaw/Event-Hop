@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-registro',
@@ -11,30 +12,36 @@ import { Router, RouterLink } from '@angular/router';
   styleUrl: './registro.css'
 })
 export class Registro {
+  private auth = inject(AuthService);
+  private detector = inject(ChangeDetectorRef);
+  private router = inject(Router);
   rol: 'usuario' | 'cafeteria' = 'usuario';
-  nombre: string = '';
-  correo: string = '';
-  password: string = '';
-  rfc: string = '';
+  nombre = '';
+  correo = '';
+  password = '';
+  rfc = '';
+  error = '';
+  enviando = false;
 
-  constructor(private router: Router) {}
-
-  registrar() {
-    if (!this.nombre || !this.correo || !this.password) {
-      alert('Por favor de completa todos los campos obligatorios.');
+  async registrar() {
+    if (this.enviando) return;
+    this.error = '';
+    if (this.password.length < 8 || !/[a-záéíóúñ]/i.test(this.password) || !/\d/.test(this.password)) {
+      this.error = 'Utiliza al menos 8 caracteres, incluyendo letras y números.';
       return;
     }
-
-    if (this.rol === 'cafeteria') {
-      if (!this.rfc || this.rfc.trim().length < 12) {
-        alert('Por favor ingresa un RFC válido (12 o 13 caracteres).');
-        return;
-      }
-      alert('Solicitud de cafetería enviada. Tu cuenta estará inactiva hasta que un administrador valide tu RFC.');
-    } else {
-      alert('¡Cuenta de usuario creada con éxito!');
+    this.enviando = true;
+    try {
+      const respuesta = await this.auth.registrar({ nombre: this.nombre, correo: this.correo,
+        password: this.password, rol: this.rol, rfc: this.rfc });
+      this.password = '';
+      alert(respuesta.mensaje);
+      this.router.navigate(['/login']);
+    } catch (error) {
+      this.error = this.auth.mensajeError(error);
+    } finally {
+      this.enviando = false;
+      this.detector.markForCheck();
     }
-
-    this.router.navigate(['/login']);
   }
 }

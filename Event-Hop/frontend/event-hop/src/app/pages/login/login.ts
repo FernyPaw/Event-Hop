@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -11,39 +12,29 @@ import { Router, RouterLink } from '@angular/router';
   styleUrl: './login.css'
 })
 export class Login {
-  correo: string = '';
-  password: string = '';
+  private auth = inject(AuthService);
+  private detector = inject(ChangeDetectorRef);
 
-  // prueba
-  usuariosPrueba = [
-    { correo: 'admin@gmail.com', pass: '1234', ruta: '/admin', rol: 'Administrador' },
-    { correo: 'cafe@gmail.com', pass: '1234', ruta: '/cafeteria', rol: 'Cafeteria' },
-    { correo: 'usuario@gmail.com', pass: '1234', ruta: '/', rol: 'Usuario' }
-  ];
+  correo = '';
+  password = '';
+  enviando = false;
+  error = '';
 
-  constructor(private router: Router) {}
+  async iniciarSesion() {
+    if (this.enviando) return;
 
-  iniciarSesion() {
-    //  correo y contraseña coinciden 
-    const encontrado = this.usuariosPrueba.find(u => 
-      u.correo.toLowerCase() === this.correo.toLowerCase() && 
-      u.pass === this.password
-    );
+    this.enviando = true;
+    this.error = '';
 
-    if (encontrado) {
-      alert(`¡Bienvenido! Iniciando sesión como ${encontrado.rol}`);
-      this.router.navigate([encontrado.ruta]);
-    } else {
-      alert('Correo o contraseña incorrectos.');
-    }
-  }
-
-  // Relleno rápido para probar sin escribir
-  llenarPrueba(correoPrueba: string) {
-    const datos = this.usuariosPrueba.find(u => u.correo === correoPrueba);
-    if (datos) {
-      this.correo = datos.correo;
-      this.password = datos.pass;
+    try {
+      await this.auth.iniciarSesion(this.correo, this.password);
+      this.password = '';
+      this.auth.irAlInicio();
+    } catch (error) {
+      this.error = this.auth.mensajeError(error);
+    } finally {
+      this.enviando = false;
+      this.detector.markForCheck();
     }
   }
 }
